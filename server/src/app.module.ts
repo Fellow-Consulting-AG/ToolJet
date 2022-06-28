@@ -117,10 +117,10 @@ export class AppModule implements OnModuleInit, OnApplicationBootstrap {
   }
 
   onModuleInit(): void {
-    console.log(`Initializing ToolJet server modules 📡 `);
+    console.log(`Initializing Insight server modules 📡 `);
   }
 
   onApplicationBootstrap(): void {
-    console.log(`Initialized ToolJet server, waiting for requests 🚀`);
+    console.log(`Initialized Insight server, waiting for requests 🚀`);
   }
 }

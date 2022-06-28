@@ -26,7 +26,7 @@ describe('Empty state of dashboard', () => {
 
         //test Create your first app button should be visible and working
         cy.get('a.btn').eq(0).should('be.visible').and('have.text', 'Create your first app').click();
-        cy.get('title').should('have.text', 'ToolJet - Dashboard');
+        cy.get('title').should('have.text', 'Insight - Dashboard');
       } else {
         cy.log('User has already created few apps hence this test will be skipped.');
       }

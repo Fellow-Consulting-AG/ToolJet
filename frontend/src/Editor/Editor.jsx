@@ -130,7 +130,7 @@ class Editor extends React.Component {
   }
 
   setWindowTitle(name) {
-    document.title = name ? `${name} - Tooljet` : `Untitled App - Tooljet`;
+    document.title = name ? `${name} - Insight` : `Untitled App - Insight`;
   }
 
   componentDidMount() {
@@ -202,7 +202,7 @@ class Editor extends React.Component {
   componentWillUnmount() {
     document.removeEventListener('mousemove', this.onMouseMove);
     document.removeEventListener('mouseup', this.onMouseUp);
-    document.title = 'Tooljet - Dashboard';
+    document.title = 'Insight - Dashboard';
     this.socket && this.socket?.close();
   }
 

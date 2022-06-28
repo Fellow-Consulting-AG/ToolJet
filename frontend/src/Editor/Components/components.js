@@ -669,7 +669,7 @@ export const componentTypes = [
     },
     exposedVariables: {
       value:
-        'ToolJet is an open-source low-code platform for building and deploying internal tools with minimal engineering efforts 🚀',
+        'Insight is an open-source low-code platform for building and deploying internal tools with minimal engineering efforts 🚀',
     },
     definition: {
       others: {
@@ -679,7 +679,7 @@ export const componentTypes = [
       properties: {
         value: {
           value:
-            'ToolJet is an open-source low-code platform for building and deploying internal tools with minimal engineering efforts 🚀',
+            'Insight is an open-source low-code platform for building and deploying internal tools with minimal engineering efforts 🚀',
         },
         placeholder: { value: 'Placeholder text' },
       },

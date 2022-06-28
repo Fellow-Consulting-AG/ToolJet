@@ -26,11 +26,11 @@ export const BlankPage = function BlankPage({
                 />
               </div>
               <h3 className="empty-welcome-header" style={{ color: darkMode && '#ffffff' }}>
-                Welcome to ToolJet!
+                Welcome to Insight!
               </h3>
               <p className={`empty-title ${darkMode && 'text-white-50'}`}>
                 You can get started by creating a new application or by creating an application using a template in
-                ToolJet Library.
+                Insight Library.
               </p>
               <div className="empty-action">
                 <a onClick={createApp} className={`btn btn-primary ${creatingApp ? 'btn-loading' : ''}`}>

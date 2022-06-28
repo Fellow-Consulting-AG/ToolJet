@@ -46,21 +46,21 @@ const Googlesheets = ({ optionchanged, createDataSource, options, isSaving, sele
         <div className="col-md-12">
           <div className="mb-3">
             <div className="form-label">Authorize</div>
-            <p>If you want your ToolJet apps to modify your Google sheets, make sure to select read and write access</p>
+            <p>If you want your Insight apps to modify your Google sheets, make sure to select read and write access</p>
             <div>
               <Radio
                 checked={options.access_type?.value === 'read'}
                 disabled={authStatus === 'waiting_for_token'}
                 onClick={() => optionchanged('access_type', 'read')}
                 text="Read only"
-                helpText="Your ToolJet apps can only read data from Google sheets"
+                helpText="Your Insight apps can only read data from Google sheets"
               />
               <Radio
                 checked={options.access_type?.value === 'write'}
                 disabled={authStatus === 'waiting_for_token'}
                 onClick={() => optionchanged('access_type', 'write')}
                 text="Read and write"
-                helpText="Your ToolJet apps can read data from sheets, modify sheets, and more."
+                helpText="Your Insight apps can read data from sheets, modify sheets, and more."
               />
             </div>
           </div>

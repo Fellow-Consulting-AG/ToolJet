@@ -21,7 +21,7 @@ describe('User login', () => {
 
   it('should take user to the signup page', () => {
     cy.visit('/signup');
-    cy.get('.card-title').should('have.text', 'Create a ToolJet account');
+    cy.get('.card-title').should('have.text', 'Create a Insight account');
   });
 
   it('should sign in the user', () => {
@@ -37,7 +37,7 @@ describe('User login', () => {
     cy.get('[data-testid="submitButton"').click();
     cy.checkToastMessage(
       'toast-forgot-password-email-error',
-      'Email address is not associated with a ToolJet cloud account.'
+      'Email address is not associated with a Insight cloud account.'
     );
   });
 

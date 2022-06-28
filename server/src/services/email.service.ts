@@ -29,7 +29,7 @@ export class EmailService {
     });
 
     const message = {
-      from: `"ToolJet" <${this.FROM_EMAIL}>`,
+      from: `"Insight" <${this.FROM_EMAIL}>`,
       to,
       subject,
       html,
@@ -54,7 +54,7 @@ export class EmailService {
   }
 
   async sendWelcomeEmail(to: string, name: string, invitationtoken: string) {
-    const subject = 'Welcome to ToolJet';
+    const subject = 'Welcome to Insight';
     const inviteUrl = `${this.TOOLJET_HOST}/invitations/${invitationtoken}?signup=true`;
     const html = `
       <!DOCTYPE html>
@@ -72,7 +72,7 @@ export class EmailService {
           <br>
           <p>
             Welcome aboard,<br>
-            ToolJet Team
+            Insight Team
           </p>
         </body>
       </html>
@@ -82,7 +82,7 @@ export class EmailService {
   }
 
   async sendOrganizationUserWelcomeEmail(to: string, name: string, sender: string, invitationtoken: string) {
-    const subject = 'Welcome to ToolJet';
+    const subject = 'Welcome to Insight';
     const inviteUrl = `${this.TOOLJET_HOST}/invitations/${invitationtoken}`;
     const html = `
       <!DOCTYPE html>
@@ -94,7 +94,7 @@ export class EmailService {
           <p>Hi ${name || ''},</p>
           <br>
           <span>
-          ${sender} has invited you to use ToolJet. Use the link below to set up your account and get started.
+          ${sender} has invited you to use Insight. Use the link below to set up your account and get started.
           </span>
           <br>
           <a href="${inviteUrl}">${inviteUrl}</a>
@@ -102,7 +102,7 @@ export class EmailService {
           <br>
           <p>
             Welcome aboard,<br>
-            ToolJet Team
+            Insight Team
           </p>
         </body>
       </html>

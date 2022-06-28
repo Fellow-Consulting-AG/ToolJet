@@ -36,3 +36,8 @@
 /frontend/cypress/videos
 
 .idea/*
+postgres*
+k8s/*
+createdb.sh
+error.log
+.lh

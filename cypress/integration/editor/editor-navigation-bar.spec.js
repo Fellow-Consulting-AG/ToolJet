@@ -8,7 +8,7 @@ describe('Editor - Navigation Bar', () => {
         cy.createAppIfEmptyDashboard();
         cy.wait(2000);
         cy.get('.badge').contains('Edit').click();
-        cy.get('title').should('have.text', 'ToolJet - Dashboard');
+        cy.get('title').should('have.text', 'Insight - Dashboard');
     });
 
     it('should show site header with nav items', () => {
@@ -21,7 +21,7 @@ describe('Editor - Navigation Bar', () => {
             .should('be.visible')
             .click()
             .get('title')
-            .should('have.text', 'ToolJet - Dashboard');
+            .should('have.text', 'Insight - Dashboard');
     });
 
     it('should hide query editor', () => {

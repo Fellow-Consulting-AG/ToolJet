@@ -14,7 +14,7 @@ describe('Dashboard operations on Apps', () => {
     it('should open app in app builder using Edit button', () => {
         cy.wait(2000);
         cy.get('.badge').contains('Edit').click();
-        cy.get('title').should('have.text', 'ToolJet - Dashboard');
+        cy.get('title').should('have.text', 'Insight - Dashboard');
     });
 
     it('should show Tooltip "App does not have a deployed version" on Launch button', () => {

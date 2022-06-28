@@ -1,0 +1,124 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@1.5.0
+  k8s: digitalocean/k8s@0.1.1
+  gcp-gcr: circleci/gcp-gcr@0.7.1
+  kubernetes: circleci/kubernetes@0.11.0
+  digitalocean: digitalocean/cli@0.1.1
+  semantic-release: proxyco/semantic-release@4.0.0
+  docker: circleci/docker@2.1.1
+  slack: circleci/slack@4.4.4
+
+parameters:
+  GHA_Actor:
+    type: string
+    default: ""
+  GHA_Action:
+    type: string
+    default: ""
+  GHA_Event:
+    type: string
+    default: ""
+  GHA_Meta:
+    type: string
+    default: ""
+
+jobs:
+  empty:
+    resource_class: small
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      - run: echo << pipeline.parameters.GHA_Meta >>
+
+  # Build and push Docker image to Registry
+  build-and-push:
+    executor: docker/docker
+    resource_class: medium
+    parameters:
+      tag:
+        description: |
+          Tag to use for image.
+        type: string
+      registry:
+        description: |
+          Registry to use for image.
+        type: string
+        default: registry.digitalocean.com
+      image:
+        description: |
+          Image name.
+        type: string
+    environment:
+      GIT_TOKEN: TOKEN
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.11
+
+      - checkout
+      - run: echo << pipeline.parameters.GHA_Meta >>
+      - attach_workspace:
+          at: /home/circleci/project
+
+      - digitalocean/install
+      - digitalocean/initialize:
+          digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
+      - run: doctl registry login
+
+      - docker/build:
+          image: << parameters.image >>
+          registry: << parameters.registry >>
+          tag: << pipeline.parameters.GHA_Meta >>
+          dockerfile: dockerfile
+          use-buildkit: true
+          # this is not usefull when building small images -> maybe we get a performace increase if the build image is bigger (doc2api?)
+          cache_from: "<< parameters.registry >>/<< parameters.image >>:latest"
+          extra_build_args: "--build-arg BUILDKIT_INLINE_CACHE=1"
+      - run: docker tag << parameters.registry >>/<< parameters.image >>:<< pipeline.parameters.GHA_Meta >> << parameters.registry >>/<< parameters.image >>:<< pipeline.git.branch >>-latest
+
+      - docker/push:
+          image: << parameters.image >>
+          registry: << parameters.registry >>
+          tag: << pipeline.parameters.GHA_Meta >>
+      - docker/push:
+          image: << parameters.image >>
+          registry: << parameters.registry >>
+          tag: << pipeline.git.branch >>-latest
+
+workflows:
+  version: 2
+  display:
+    jobs:
+      - empty
+  deployment_workflow:
+    when:
+      and:
+        - or:
+            - equal: ["dev", << pipeline.git.branch >>]
+            - equal: ["stage", << pipeline.git.branch >>]
+            - equal: ["sandbox", << pipeline.git.branch >>]
+            - equal: ["prod", << pipeline.git.branch >>]
+        - equal: ["CircleCI", << pipeline.parameters.GHA_Action >>]
+    jobs:
+      # Build and push Docker image to Digitalocean Registry
+      - build-and-push:
+          context:
+            - Digitalocean
+            - GitHub
+          tag: << pipeline.parameters.GHA_Meta >>
+          image: cloudintegration/doc2api
+
+      # Create/Update Digitalocean Deployment
+      - deploy:
+          branch: << pipeline.git.branch >>
+          namespace: doc2api
+          deployment: doc2api-<< pipeline.git.branch >>
+          deployment_celery: doc2api-celery-<< pipeline.git.branch >>
+          tag: << pipeline.parameters.GHA_Meta >>
+          context: Digitalocean
+          container: registry.digitalocean.com/cloudintegration/doc2api
+          cluster-name: k8s-1-21-2-do-1-fra1-1625240177379
+          requires:
+            - build-and-push
