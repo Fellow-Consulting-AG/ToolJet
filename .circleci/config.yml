@@ -108,17 +108,4 @@ workflows:
             - Digitalocean
             - GitHub
           tag: << pipeline.parameters.GHA_Meta >>
-          image: cloudintegration/doc2api
-
-      # Create/Update Digitalocean Deployment
-      - deploy:
-          branch: << pipeline.git.branch >>
-          namespace: doc2api
-          deployment: doc2api-<< pipeline.git.branch >>
-          deployment_celery: doc2api-celery-<< pipeline.git.branch >>
-          tag: << pipeline.parameters.GHA_Meta >>
-          context: Digitalocean
-          container: registry.digitalocean.com/cloudintegration/doc2api
-          cluster-name: k8s-1-21-2-do-1-fra1-1625240177379
-          requires:
-            - build-and-push
+          image: cloudintegration/tooljet
