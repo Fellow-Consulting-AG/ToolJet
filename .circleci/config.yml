@@ -71,7 +71,7 @@ jobs:
           image: << parameters.image >>
           registry: << parameters.registry >>
           tag: << pipeline.parameters.GHA_Meta >>
-          dockerfile: dockerfile
+          dockerfile: docker/production.Dockerfile
           use-buildkit: true
           # this is not usefull when building small images -> maybe we get a performace increase if the build image is bigger (doc2api?)
           cache_from: "<< parameters.registry >>/<< parameters.image >>:latest"
