@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { ActionTypes } from '../ActionTypes';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import SelectSearch, { fuzzySearch } from 'react-select-search';
 import { CodeHinter } from '../CodeBuilder/CodeHinter';
 import { GotoApp } from './ActionConfigurationPanels/GotoApp';
+import Select from '@/_ui/Select';
+import defaultStyles from '@/_ui/Select/styles';
 
 export const EventManager = ({
   component,
@@ -23,6 +24,17 @@ export const EventManager = ({
   let actionOptions = ActionTypes.map((action) => {
     return { name: action.name, value: action.id };
   });
+
+  const darkMode = localStorage.getItem('darkMode') === 'true';
+  const styles = {
+    ...defaultStyles(darkMode),
+    menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
+    menuList: (base) => ({
+      ...base,
+    }),
+  };
+
+  const actionLookup = Object.fromEntries(ActionTypes.map((actionType) => [actionType.id, actionType]));
 
   let alertTypes = [
     {
@@ -112,57 +124,63 @@ export const EventManager = ({
     });
     eventsChanged(newEvents);
   }
-
-  const darkMode = localStorage.getItem('darkMode') === 'true';
-
   function eventPopover(event, index) {
     return (
       <Popover
         id="popover-basic"
         style={{ width: '350px', maxWidth: '350px' }}
         className={`${darkMode && 'popover-dark-themed theme-dark'} shadow`}
+        data-cy="popover-card"
       >
         <Popover.Content>
           <div className="row">
             <div className="col-3 p-2">
-              <span>Event</span>
+              <span data-cy="event-label">Event</span>
             </div>
-            <div className="col-9">
-              <SelectSearch
+            <div className="col-9" data-cy="event-selection">
+              <Select
                 className={`${darkMode ? 'select-search-dark' : 'select-search'}`}
                 options={possibleEvents}
                 value={event.eventId}
                 search={false}
                 onChange={(value) => handlerChanged(index, 'eventId', value)}
-                filterOptions={fuzzySearch}
                 placeholder="Select.."
+                styles={styles}
+                useMenuPortal={false}
               />
             </div>
           </div>
           <div className="row mt-3">
             <div className="col-3 p-2">
-              <span>Action</span>
+              <span data-cy="action-label">Action</span>
             </div>
-            <div className="col-9 popover-action-select-search">
-              <SelectSearch
+            <div className="col-9 popover-action-select-search" data-cy="action-selection">
+              <Select
                 className={`${darkMode ? 'select-search-dark' : 'select-search'}`}
                 options={actionOptions}
                 value={event.actionId}
                 search={false}
                 onChange={(value) => handlerChanged(index, 'actionId', value)}
-                filterOptions={fuzzySearch}
                 placeholder="Select.."
+                styles={styles}
+                useMenuPortal={false}
               />
             </div>
           </div>
 
-          <div className="hr-text">Action options</div>
+          {actionLookup[event.actionId].options?.length > 0 && (
+            <div className="hr-text" data-cy="action-option">
+              Action options
+            </div>
+          )}
           <div>
             {event.actionId === 'show-alert' && (
               <>
                 <div className="row">
-                  <div className="col-3 p-2">Message</div>
-                  <div className="col-9">
+                  <div className="col-3 p-2" data-cy="message-label">
+                    Message
+                  </div>
+                  <div className="col-9" data-cy="message-text">
                     <CodeHinter
                       theme={darkMode ? 'monokai' : 'default'}
                       currentState={currentState}
@@ -173,16 +191,19 @@ export const EventManager = ({
                   </div>
                 </div>
                 <div className="row mt-3">
-                  <div className="col-3 p-2">Alert Type</div>
-                  <div className="col-9">
-                    <SelectSearch
+                  <div className="col-3 p-2" data-cy="alert-type-label">
+                    Alert Type
+                  </div>
+                  <div className="col-9" data-cy="alert-message-type">
+                    <Select
                       className={`${darkMode ? 'select-search-dark' : 'select-search'}`}
                       options={alertOptions}
                       value={event.alertType}
                       search={false}
                       onChange={(value) => handlerChanged(index, 'alertType', value)}
-                      filterOptions={fuzzySearch}
                       placeholder="Select.."
+                      styles={styles}
+                      useMenuPortal={false}
                     />
                   </div>
                 </div>
@@ -216,7 +237,7 @@ export const EventManager = ({
               <div className="row">
                 <div className="col-3 p-2">Modal</div>
                 <div className="col-9">
-                  <SelectSearch
+                  <Select
                     className={`${darkMode ? 'select-search-dark' : 'select-search'}`}
                     options={getComponentOptions('Modal')}
                     value={event.modal?.id ?? event.modal}
@@ -224,8 +245,9 @@ export const EventManager = ({
                     onChange={(value) => {
                       handlerChanged(index, 'modal', value);
                     }}
-                    filterOptions={fuzzySearch}
                     placeholder="Select.."
+                    styles={styles}
+                    useMenuPortal={false}
                   />
                 </div>
               </div>
@@ -235,7 +257,7 @@ export const EventManager = ({
               <div className="row">
                 <div className="col-3 p-2">Modal</div>
                 <div className="col-9">
-                  <SelectSearch
+                  <Select
                     className={`${darkMode ? 'select-search-dark' : 'select-search'}`}
                     options={getComponentOptions('Modal')}
                     value={event.modal?.id ?? event.modal}
@@ -243,8 +265,9 @@ export const EventManager = ({
                     onChange={(value) => {
                       handlerChanged(index, 'modal', value);
                     }}
-                    filterOptions={fuzzySearch}
                     placeholder="Select.."
+                    styles={styles}
+                    useMenuPortal={false}
                   />
                 </div>
               </div>
@@ -266,7 +289,7 @@ export const EventManager = ({
               <div className="row">
                 <div className="col-3 p-2">Query</div>
                 <div className="col-9">
-                  <SelectSearch
+                  <Select
                     className={`${darkMode ? 'select-search-dark' : 'select-search'}`}
                     options={dataQueries.map((query) => {
                       return { name: query.name, value: query.id };
@@ -278,8 +301,9 @@ export const EventManager = ({
                       handlerChanged(index, 'queryId', query.id);
                       handlerChanged(index, 'queryName', query.name);
                     }}
-                    filterOptions={fuzzySearch}
                     placeholder="Select.."
+                    styles={styles}
+                    useMenuPortal={false}
                   />
                 </div>
               </div>
@@ -320,7 +344,7 @@ export const EventManager = ({
                 <div className="row">
                   <div className="col-3 p-2">Type</div>
                   <div className="col-9">
-                    <SelectSearch
+                    <Select
                       className={`${darkMode ? 'select-search-dark' : 'select-search'}`}
                       options={[
                         { name: 'CSV', value: 'csv' },
@@ -331,8 +355,9 @@ export const EventManager = ({
                       onChange={(value) => {
                         handlerChanged(index, 'fileType', value);
                       }}
-                      filterOptions={fuzzySearch}
                       placeholder="Select.."
+                      styles={styles}
+                      useMenuPortal={false}
                     />
                   </div>
                 </div>
@@ -367,7 +392,7 @@ export const EventManager = ({
                 <div className="row">
                   <div className="col-3 p-2">Table</div>
                   <div className="col-9">
-                    <SelectSearch
+                    <Select
                       className={`${darkMode ? 'select-search-dark' : 'select-search'}`}
                       options={getComponentOptions('Table')}
                       value={event.table}
@@ -375,8 +400,9 @@ export const EventManager = ({
                       onChange={(value) => {
                         handlerChanged(index, 'table', value);
                       }}
-                      filterOptions={fuzzySearch}
                       placeholder="Select.."
+                      styles={styles}
+                      useMenuPortal={false}
                     />
                   </div>
                 </div>
@@ -468,10 +494,12 @@ export const EventManager = ({
             }}
           >
             <div className="card mb-1">
-              <div className="card-body p-0">
+              <div className="card-body p-0" data-cy="event-handler-card">
                 <div className={rowClassName} role="button">
-                  <div className="col">{componentMeta.events[event.eventId]['displayName']}</div>
-                  <div className="col">
+                  <div className="col" data-cy="event-handler">
+                    {componentMeta.events[event.eventId]['displayName']}
+                  </div>
+                  <div className="col" data-cy="event-name">
                     <small className="event-action font-weight-light">{actionMeta.name}</small>
                   </div>
                   <div className="col-auto">
@@ -481,6 +509,7 @@ export const EventManager = ({
                         e.stopPropagation();
                         removeHandler(index);
                       }}
+                      data-cy="delete-button"
                     >
                       <svg width="10" height="16" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -509,12 +538,13 @@ export const EventManager = ({
           <button
             className="btn btn-sm border-0 font-weight-normal padding-2 col-auto color-primary inspector-add-button"
             onClick={addHandler}
+            data-cy="add-event-handler"
           >
             + Add event handler
           </button>
         </div>
         <div className="text-center">
-          <small className="color-disabled">
+          <small className="color-disabled" data-cy="no-event-handler-message">
             This {componentName.toLowerCase()} doesn&apos;t have any event handlers
           </small>
         </div>
@@ -528,6 +558,7 @@ export const EventManager = ({
         <button
           className="btn btn-sm border-0 font-weight-normal padding-2 col-auto color-primary inspector-add-button"
           onClick={addHandler}
+          data-cy="add-more-event-handler"
         >
           + Add handler
         </button>

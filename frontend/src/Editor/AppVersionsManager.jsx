@@ -14,14 +14,17 @@ export const AppVersionsManager = function AppVersionsManager({
   closeCreateVersionModalPrompt,
 }) {
   const [showDropDown, setShowDropDown] = useState(false);
-  const [showModal, setShowModal] = useState(showCreateVersionModalPrompt);
+  const [showModal, setShowModal] = useState(false);
   const [isCreatingVersion, setIsCreatingVersion] = useState(false);
+  const [isEditingVersion, setIsEditingVersion] = useState(false);
   const [deletingVersionId, setDeletingVersionId] = useState(null);
+  const [updatingVersionId, setUpdatingVersionId] = useState(null);
   const [isDeletingVersion, setIsDeletingVersion] = useState(false);
   const [editingAppVersion, setEditingAppVersion] = useState(editingVersion);
   const [versionName, setVersionName] = useState('');
   const [appVersions, setAppVersions] = useState([]);
   const [showVersionDeletionConfirmation, setShowVersionDeletionConfirmation] = useState(false);
+  const [showVersionUpdateModal, setShowVersionUpdateModal] = useState(false);
   const [mouseHoveredOnVersion, setMouseHoveredOnVersion] = useState(null);
   const [createAppVersionFrom, setCreateAppVersionFrom] = useState(editingAppVersion);
 
@@ -29,6 +32,12 @@ export const AppVersionsManager = function AppVersionsManager({
     setCreateAppVersionFrom(editingAppVersion);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appVersions]);
+
+  useEffect(() => {
+    setVersionName('');
+    setShowModal(showCreateVersionModalPrompt);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showCreateVersionModalPrompt]);
 
   useEffect(() => {
     appVersionService.getAll(appId).then((data) => {
@@ -89,7 +98,7 @@ export const AppVersionsManager = function AppVersionsManager({
         })
         .catch((_error) => {
           setIsCreatingVersion(false);
-          toast.error('Oops, something went wrong');
+          toast.error(_error?.error);
         });
     } else {
       toast.error('The name of version should not be empty');
@@ -130,9 +139,41 @@ export const AppVersionsManager = function AppVersionsManager({
     });
   };
 
+  const editVersionName = () => {
+    if (versionName.trim() !== '') {
+      setIsEditingVersion(true);
+      appVersionService
+        .save(appId, updatingVersionId, { name: versionName })
+        .then(() => {
+          toast.success('Version name updated');
+          appVersionService.getAll(appId).then((data) => {
+            const versions = data.versions;
+            setAppVersions(versions);
+            updatingVersionId === editingAppVersion.id &&
+              versions.map((appVersion) => {
+                if (appVersion.id === updatingVersionId) {
+                  setEditingAppVersion(appVersion);
+                  setUpdatingVersionId(null);
+                }
+              });
+          });
+          setIsEditingVersion(false);
+          setShowVersionUpdateModal(false);
+        })
+        .catch((_error) => {
+          setIsEditingVersion(false);
+          setShowVersionDeletionConfirmation(false);
+          toast.error(_error?.error);
+        });
+    } else {
+      toast.error('The name of version should not be empty');
+      setIsEditingVersion(false);
+    }
+  };
+
   return (
     <div ref={wrapperRef} className="input-group app-version-menu">
-      <span className="input-group-text app-version-menu-sm">App Version</span>
+      <span className="input-group-text app-version-menu-sm">Version</span>
       <span
         className={`app-version-name form-select app-version-menu-sm ${appVersions ? '' : 'disabled'}`}
         onClick={() => {
@@ -149,51 +190,87 @@ export const AppVersionsManager = function AppVersionsManager({
               <div className="app-version-content">
                 {appVersions.map((version) =>
                   releasedVersionId == version.id ? (
-                    <div className="row dropdown-item released" key={version.id} onClick={() => selectVersion(version)}>
-                      <div className="col-md-4">{version.name}</div>
-                      <div className="released-subtext">
-                        <img src={'/assets/images/icons/editor/deploy-rocket.svg'} />
-                        <span className="px-1">Currently Released</span>
+                    <>
+                      <div
+                        className="row dropdown-item released"
+                        key={version.id}
+                        onClick={() => selectVersion(version)}
+                      >
+                        <div className="col-md-4">{version.name}</div>
+                        <div className="released-subtext">
+                          <img src={'/assets/images/icons/editor/deploy-rocket.svg'} />
+                          <span className="px-1">Currently Released</span>
+                        </div>
                       </div>
-                    </div>
+                      <div className="dropdown-divider m-0"></div>
+                    </>
                   ) : (
-                    <div
-                      className="dropdown-item row"
-                      key={version.id}
-                      onClick={() => selectVersion(version)}
-                      onMouseEnter={() => setMouseHoveredOnVersion(version.id)}
-                      onMouseLeave={() => setMouseHoveredOnVersion(null)}
-                    >
-                      <div className="col-md-4">{version.name}</div>
+                    <>
+                      <div
+                        className="dropdown-item row"
+                        key={version.id}
+                        onClick={() => selectVersion(version)}
+                        onMouseEnter={() => setMouseHoveredOnVersion(version.id)}
+                        onMouseLeave={() => setMouseHoveredOnVersion(null)}
+                      >
+                        <div className="col-md-4">{version.name}</div>
 
-                      <div className="col-md-2 offset-md-6">
-                        <button
-                          className="btn badge bg-azure-lt"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeletingVersionId(version.id);
-                            setShowVersionDeletionConfirmation(true);
-                          }}
-                          disabled={isDeletingVersion}
-                          style={{
-                            display: mouseHoveredOnVersion === version.id ? 'flex' : 'none',
-                          }}
-                        >
-                          <img
-                            src="/assets/images/icons/query-trash-icon.svg"
-                            width="12"
-                            height="12"
-                            className="mx-1"
-                            style={{ paddingLeft: '0.6px' }}
-                          />
-                        </button>
+                        <div className="col-md-2 offset-md-5 d-flex" style={{ gap: 5, paddingLeft: 10 }}>
+                          <button
+                            className="btn badge bg-azure-lt"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setUpdatingVersionId(version.id);
+                              setVersionName(version.name);
+                              setShowVersionUpdateModal(true);
+                            }}
+                            style={{
+                              display: mouseHoveredOnVersion === version.id ? 'flex' : 'none',
+                            }}
+                          >
+                            <img
+                              src="/assets/images/icons/edit.svg"
+                              width="12"
+                              height="12"
+                              className="mx-1"
+                              style={{ paddingLeft: '0.6px' }}
+                            />
+                          </button>
+
+                          <button
+                            className="btn badge bg-azure-lt"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeletingVersionId(version.id);
+                              setShowVersionDeletionConfirmation(true);
+                            }}
+                            disabled={isDeletingVersion}
+                            style={{
+                              display: mouseHoveredOnVersion === version.id ? 'flex' : 'none',
+                            }}
+                          >
+                            <img
+                              src="/assets/images/icons/query-trash-icon.svg"
+                              width="12"
+                              height="12"
+                              className="mx-1"
+                              style={{ paddingLeft: '0.6px' }}
+                            />
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                      <div className="dropdown-divider m-0"></div>
+                    </>
                   )
                 )}
-                <div className="dropdown-divider"></div>
               </div>
-              <div className="dropdown-item" onClick={() => setShowModal(true)}>
+              <div
+                className="dropdown-item"
+                onClick={() => {
+                  setVersionName('');
+                  setShowModal(true);
+                }}
+              >
                 <span className="color-primary create-link">Create Version</span>
               </div>
               <Confirm
@@ -220,6 +297,31 @@ export const AppVersionsManager = function AppVersionsManager({
           showCreateVersionModalPrompt={showCreateVersionModalPrompt}
         />
       </span>
+      <Modal show={showVersionUpdateModal} closeModal={() => setShowVersionUpdateModal(false)} title="Edit version">
+        <div className="row">
+          <div className="col modal-main">
+            <input
+              type="text"
+              onChange={(e) => setVersionName(e.target.value)}
+              className="form-control"
+              placeholder="version name"
+              disabled={isEditingVersion}
+              value={versionName}
+              maxLength={25}
+            />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col d-flex modal-footer-btn">
+            <button className="btn btn-light" onClick={() => setShowVersionUpdateModal(false)}>
+              Cancel
+            </button>
+            <button className={`btn btn-primary ${isEditingVersion ? 'btn-loading' : ''}`} onClick={editVersionName}>
+              Save
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

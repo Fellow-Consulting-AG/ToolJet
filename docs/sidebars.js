@@ -16,7 +16,7 @@ const sidebars = {
       label: 'Setup',
       link: {type: 'doc', id: 'setup/index'},
       items: [
-        'setup/introduction',
+        'setup/try-tooljet',
         'setup/docker',
         'setup/heroku',
         'setup/ec2',
@@ -53,6 +53,7 @@ const sidebars = {
         'tutorial/sharing-and-deploying',
         'tutorial/manage-users-groups',
         'tutorial/keyboard-shortcuts',
+        'tutorial/multiworkspace',
       ],
     },
     {
@@ -62,6 +63,7 @@ const sidebars = {
         'data-sources/airtable',
         'data-sources/s3',
         'data-sources/appwrite',
+        'data-sources/athena',
         'data-sources/baserow',
         'data-sources/bigquery',
         'data-sources/firestore',
@@ -85,6 +87,7 @@ const sidebars = {
         'data-sources/postgresql',
         'data-sources/redis',
         'data-sources/restapi',
+        'data-sources/saphana',
         'data-sources/sendgrid',
         'data-sources/smtp',
         'data-sources/snowflake',
@@ -97,12 +100,14 @@ const sidebars = {
       label: 'Widget Reference',
       items: [
         'widgets/button',
+        'widgets/button-group',
         'widgets/calendar',
         'widgets/chart',
         'widgets/checkbox',
         'widgets/circular-progress-bar',
         'widgets/code-editor',
         'widgets/container',
+        'widgets/custom-component',
         'widgets/date-range-picker',
         'widgets/datepicker',
         'widgets/divider',
@@ -110,12 +115,14 @@ const sidebars = {
         'widgets/file-picker',
         'widgets/iframe',
         'widgets/image',
+        'widgets/kanban',
         'widgets/listview',
         'widgets/map',
         'widgets/modal',
         'widgets/multiselect',
         'widgets/number-input',
         'widgets/password-input',
+        'widgets/pdf',
         'widgets/qr-scanner',
         'widgets/radio-button',
         'widgets/range-slider',
@@ -123,6 +130,7 @@ const sidebars = {
         'widgets/spinner',
         'widgets/star',
         'widgets/statistics',
+        'widgets/steps',
         'widgets/table',
         'widgets/tabs',
         'widgets/tags',
@@ -161,6 +169,7 @@ const sidebars = {
       },
       items: [
         'how-to/bulk-update-multiple-rows',
+        'how-to/access-cellvalue-rowdata',
         'how-to/oauth2-authorization',
         'how-to/upload-files-aws',
         'how-to/upload-files-gcs',
@@ -175,17 +184,43 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Single Sign-on',
+      label: 'User Authentication',
       link: {
         type: 'generated-index',
-        title: 'Single Sign-on',
+        title: 'User Authentication',
         description:
-          "Guide for enabling available Single Sign-ons on ToolJet",
-        keywords: ['single sign-on','SSO'],
+          "Guides for setting up User Authentication and managing Single Sign-On",
+        keywords: ['SSO','authentication'],
       },
+      collapsed: true,
       items: [
-        'sso/github',
-        'sso/google',
+        'user-authentication/user-lifecycle',
+        'user-authentication/general-settings',
+        'user-authentication/password-login',
+        {
+          type: 'category',
+          label: 'SSO',
+          items: [
+            'user-authentication/sso/github',
+            'user-authentication/sso/google',
+             {
+          type: 'category',
+          label: 'OpenId Connect',
+          link: {
+            type: 'generated-index',
+            title: 'OpenId Connect',
+            description:" ",
+            keywords: ['okta','openid','azureAD'],
+          },
+          collapsed: false,
+          items: [
+            'user-authentication/sso/setup',
+            'user-authentication/sso/okta',
+            'user-authentication/sso/azuread',
+          ],
+        }
+          ],
+        },
       ],
     },
     {
@@ -200,6 +235,7 @@ const sidebars = {
       },
       collapsed: false,
       items: [
+        'contributing-guide/setup/architecture',
         {
           type: 'category',
           label: 'Setup',
@@ -217,11 +253,18 @@ const sidebars = {
             'contributing-guide/tutorials/creating-a-plugin',
           ],
         },
+        {
+          type: 'category',
+          label: 'Troubleshooting',
+          items: [
+            'contributing-guide/troubleshooting/eslint',
+          ],
+        },
         'contributing-guide/code-of-conduct',
         'contributing-guide/slackcoc',
       ],
     },
-  ]
+  ],
 };
 
 module.exports = sidebars;

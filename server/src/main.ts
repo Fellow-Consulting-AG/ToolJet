@@ -6,6 +6,7 @@ import { Logger } from 'nestjs-pino';
 import { urlencoded, json } from 'express';
 import { AllExceptionsFilter } from './all-exceptions-filter';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 const fs = require('fs');
 
@@ -16,6 +17,7 @@ async function bootstrap() {
     bufferLogs: true,
     abortOnError: false,
   });
+  const configService = app.get<ConfigService>(ConfigService);
   const host = new URL(process.env.TOOLJET_HOST);
   const domain = host.hostname;
 
@@ -31,7 +33,7 @@ async function bootstrap() {
       useDefaults: true,
       directives: {
         upgradeInsecureRequests: null,
-        'img-src': ['*', 'data:'],
+        'img-src': ['*', 'data:', 'blob:'],
         'script-src': [
           'maps.googleapis.com',
           'apis.google.com',
@@ -40,6 +42,10 @@ async function bootstrap() {
           "'unsafe-inline'",
           "'unsafe-eval'",
           'blob:',
+          'https://unpkg.com/@babel/standalone@7.17.9/babel.min.js',
+          'https://unpkg.com/react@16.7.0/umd/react.production.min.js',
+          'https://unpkg.com/react-dom@16.7.0/umd/react-dom.production.min.js',
+          'cdn.skypack.dev',
         ],
         'default-src': [
           'maps.googleapis.com',
@@ -62,7 +68,8 @@ async function bootstrap() {
   const port = parseInt(process.env.PORT) || 3000;
 
   await app.listen(port, '0.0.0.0', function () {
-    console.log('Listening on port %d', port);
+    const tooljetHost = configService.get<string>('TOOLJET_HOST');
+    console.log(`Ready to use at ${tooljetHost} 🚀`);
   });
 }
 

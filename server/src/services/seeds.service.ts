@@ -18,10 +18,7 @@ export class SeedsService {
         },
       });
 
-      if (defaultUser) {
-        console.log('Default user already present. Skipping seed.');
-        return;
-      }
+      if (defaultUser) return;
 
       const organization = manager.create(Organization, {
         ssoConfigs: [
@@ -30,7 +27,7 @@ export class SeedsService {
             sso: 'form',
           },
         ],
-        name: 'My organization',
+        name: 'My workspace',
       });
 
       await manager.save(organization);
@@ -58,7 +55,9 @@ export class SeedsService {
 
       await this.createDefaultUserGroups(manager, user);
 
-      console.log('Seeding complete. Use default credentials to login.');
+      console.log(
+        'Seeding complete. Use default credentials to login.\n' + 'email: dev@tooljet.io\n' + 'password: password'
+      );
     });
   }
 
@@ -76,6 +75,8 @@ export class SeedsService {
       appCreate: group == 'admin',
       appDelete: group == 'admin',
       folderCreate: group == 'admin',
+      folderUpdate: group == 'admin',
+      folderDelete: group == 'admin',
     });
 
     await manager.save(groupPermission);

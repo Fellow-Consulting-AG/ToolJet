@@ -95,6 +95,8 @@ export const DraggableBox = function DraggableBox({
   parentId,
   hoveredComponent,
   onComponentHover,
+  isMultipleComponentsSelected,
+  dataQueries,
 }) {
   const [isResizing, setResizing] = useState(false);
   const [isDragging2, setDragging] = useState(false);
@@ -195,11 +197,11 @@ export const DraggableBox = function DraggableBox({
           })}
           onMouseEnter={(e) => {
             if (e.currentTarget.className.includes(`widget-${id}`)) {
-              onComponentHover(id);
+              onComponentHover?.(id);
               e.stopPropagation();
             }
           }}
-          onMouseLeave={() => onComponentHover(false)}
+          onMouseLeave={() => onComponentHover?.(false)}
           style={getStyles(isDragging, isSelectedComponent)}
         >
           <Rnd
@@ -219,7 +221,7 @@ export const DraggableBox = function DraggableBox({
               mouseOver || isResizing || isDragging2 || isSelectedComponent ? 'resizer-active' : ''
             } `}
             onResize={() => setResizing(true)}
-            onDrag={(e) => {
+            onDrag={(e, direction) => {
               e.preventDefault();
               e.stopImmediatePropagation();
               if (!isDragging2) {
@@ -234,7 +236,7 @@ export const DraggableBox = function DraggableBox({
               setDragging(false);
               onDragStop(e, id, direction, currentLayout, currentLayoutOptions);
             }}
-            cancel={`div.table-responsive.jet-data-table, div.calendar-widget, div.text-input, .textarea, .map-widget, .range-slider`}
+            cancel={`div.table-responsive.jet-data-table, div.calendar-widget, div.text-input, .textarea, .map-widget, .range-slider, .kanban-container`}
             onDragStart={(e) => e.stopPropagation()}
             onResizeStop={(e, direction, ref, d, position) => {
               setResizing(false);
@@ -251,7 +253,10 @@ export const DraggableBox = function DraggableBox({
                   position={currentLayoutOptions.top < 15 ? 'bottom' : 'top'}
                   widgetTop={currentLayoutOptions.top}
                   widgetHeight={currentLayoutOptions.height}
-                  setSelectedComponent={(id, component) => setSelectedComponent(id, component)}
+                  setSelectedComponent={(id, component, multiSelect) =>
+                    setSelectedComponent(id, component, multiSelect)
+                  }
+                  isMultipleComponentsSelected={isMultipleComponentsSelected}
                 />
               )}
               <ErrorBoundary showFallback={mode === 'edit'}>
@@ -278,6 +283,7 @@ export const DraggableBox = function DraggableBox({
                   parentId={parentId}
                   allComponents={allComponents}
                   extraProps={extraProps}
+                  dataQueries={dataQueries}
                 />
               </ErrorBoundary>
             </div>

@@ -7,9 +7,10 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { computeComponentName } from '@/_helpers/utils';
 import { defaults, cloneDeep, isEqual, isEmpty, debounce } from 'lodash';
 import { Container } from './Container';
+import { EditorKeyHooks } from './EditorKeyHooks';
 import { CustomDragLayer } from './CustomDragLayer';
 import { LeftSidebar } from './LeftSidebar';
-import { componentTypes } from './Components/components';
+import { componentTypes } from './WidgetManager/components';
 import { Inspector } from './Inspector/Inspector';
 import { DataSourceTypes } from './DataSourceManager/SourceComponents';
 import { QueryManager } from './QueryManager';
@@ -41,14 +42,15 @@ import RunjsIcon from './Icons/runjs.svg';
 import EditIcon from './Icons/edit.svg';
 import MobileSelectedIcon from './Icons/mobile-selected.svg';
 import DesktopSelectedIcon from './Icons/desktop-selected.svg';
+import Spinner from '@/_ui/Spinner';
 import { AppVersionsManager } from './AppVersionsManager';
 import { SearchBoxComponent } from '@/_ui/Search';
 import { createWebsocketConnection } from '@/_helpers/websocketConnection';
-import { Cursor } from './Cursor';
 import Tooltip from 'react-bootstrap/Tooltip';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import RealtimeAvatars from './RealtimeAvatars';
-import InitVersionCreateModal from './InitVersionCreateModal';
+import RealtimeCursors from '@/Editor/RealtimeCursors';
+import { initEditorWalkThrough } from '@/_helpers/createWalkThrough';
 
 setAutoFreeze(false);
 enablePatches();
@@ -84,8 +86,11 @@ class Editor extends React.Component {
         canvasMaxWidth: 1292,
         canvasMaxHeight: 2400,
         canvasBackgroundColor: props.darkMode ? '#2f3c4c' : '#edeff5',
+        backgroundFxQuery: '',
       },
     };
+
+    this.dataSourceModalRef = React.createRef();
 
     this.state = {
       currentUser: authenticationService.currentUserValue,
@@ -124,9 +129,10 @@ class Editor extends React.Component {
       isDeletingDataQuery: false,
       showHiddenOptionsForDataQueryId: null,
       showQueryConfirmation: false,
-      showInitVersionCreateModal: false,
       showCreateVersionModalPrompt: false,
       isSourceSelected: false,
+      isSaving: false,
+      isUnsavedQueriesAvailable: false,
     };
 
     this.autoSave = debounce(this.saveEditingVersion, 3000);
@@ -145,7 +151,7 @@ class Editor extends React.Component {
     this.initEventListeners();
     this.setState({
       currentSidebarTab: 2,
-      selectedComponent: null,
+      selectedComponents: [],
     });
   }
 
@@ -180,7 +186,7 @@ class Editor extends React.Component {
   };
 
   closeCreateVersionModalPrompt = () => {
-    this.setState({ showCreateVersionModalPrompt: false });
+    this.setState({ isSaving: false, showCreateVersionModalPrompt: false });
   };
 
   onMouseMove = (e) => {
@@ -237,6 +243,7 @@ class Editor extends React.Component {
     document.removeEventListener('mouseup', this.onMouseUp);
     document.title = 'Tooljet - Dashboard';
     this.socket && this.socket?.close();
+    if (config.ENABLE_MULTIPLAYER_EDITING) this.props?.provider?.disconnect();
   }
 
   // 1. When we receive an undoable action – we can always undo but cannot redo anymore.
@@ -355,7 +362,7 @@ class Editor extends React.Component {
   fetchApp = () => {
     const appId = this.props.match.params.id;
 
-    appService.getApp(appId).then((data) => {
+    appService.getApp(appId).then(async (data) => {
       const dataDefinition = defaults(data.definition, this.defaultDefinition);
       this.setState(
         {
@@ -365,13 +372,10 @@ class Editor extends React.Component {
           appDefinition: dataDefinition,
           slug: data.slug,
         },
-        () => {
-          this.setState({
-            showInitVersionCreateModal: isEmpty(this.state.editingVersion),
-          });
+        async () => {
+          if (isEmpty(this.state.editingVersion)) await this.createInitVersion(appId);
 
           computeComponentState(this, this.state.appDefinition.components).then(() => {
-            console.log('Default component state computed and set');
             this.runQueries(data.data_queries);
           });
           this.setWindowTitle(data.name);
@@ -383,6 +387,18 @@ class Editor extends React.Component {
     });
   };
 
+  createInitVersion = async (appId) => {
+    return appVersionService
+      .create(appId, 'v1')
+      .then(() => {
+        initEditorWalkThrough();
+        this.fetchApp();
+      })
+      .catch((err) => {
+        toast.success(err?.error ?? 'Version creation failed');
+      });
+  };
+
   setAppDefinitionFromVersion = (version) => {
     this.appDefinitionChanged(defaults(version.definition, this.defaultDefinition), {
       skipAutoSave: true,
@@ -390,6 +406,7 @@ class Editor extends React.Component {
     });
     this.setState({
       editingVersion: version,
+      isSaving: false,
     });
 
     this.fetchDataSources();
@@ -397,8 +414,11 @@ class Editor extends React.Component {
     this.initComponentVersioning();
   };
 
+  /**
+   * https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/readyState
+   */
   dataSourcesChanged = () => {
-    if (this.socket instanceof WebSocket) {
+    if (this.socket instanceof WebSocket && this.socket?.readyState === WebSocket.OPEN) {
       this.socket?.send(
         JSON.stringify({
           event: 'events',
@@ -410,9 +430,12 @@ class Editor extends React.Component {
     }
   };
 
+  /**
+   * https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/readyState
+   */
   dataQueriesChanged = () => {
     this.setState({ addingQuery: false }, () => {
-      if (this.socket instanceof WebSocket) {
+      if (this.socket instanceof WebSocket && this.socket?.readyState === WebSocket.OPEN) {
         this.socket?.send(
           JSON.stringify({
             event: 'events',
@@ -426,9 +449,6 @@ class Editor extends React.Component {
   };
 
   switchSidebarTab = (tabIndex) => {
-    if (tabIndex === 2) {
-      this.setState({ selectedComponent: null });
-    }
     this.setState({
       currentSidebarTab: tabIndex,
     });
@@ -526,24 +546,53 @@ class Editor extends React.Component {
       },
       this.handleAddPatch
     );
-    this.setState({ appDefinition: newDefinition }, () => {
+    this.setState({ isSaving: true, appDefinition: newDefinition }, () => {
       if (!opts.skipAutoSave) this.autoSave();
     });
     computeComponentState(this, newDefinition.components);
   };
 
-  handleInspectorView = (component) => {
-    if (this.state.selectedComponent?.hasOwnProperty('component')) {
-      const { id: selectedComponentId } = this.state.selectedComponent;
-      if (selectedComponentId === component.id) {
-        this.setState({ selectedComponent: null });
-        this.switchSidebarTab(2);
-      }
-    }
+  handleInspectorView = () => {
+    this.switchSidebarTab(2);
   };
 
   handleSlugChange = (newSlug) => {
     this.setState({ slug: newSlug });
+  };
+
+  removeComponents = () => {
+    if (!this.isVersionReleased() && this.state?.selectedComponents?.length > 1) {
+      let newDefinition = cloneDeep(this.state.appDefinition);
+      const selectedComponents = this.state?.selectedComponents;
+
+      selectedComponents.forEach((component) => {
+        let childComponents = [];
+
+        if (newDefinition.components[component.id].component.component === 'Tabs') {
+          childComponents = Object.keys(newDefinition.components).filter((key) =>
+            newDefinition.components[key].parent?.startsWith(component.id)
+          );
+        } else {
+          childComponents = Object.keys(newDefinition.components).filter(
+            (key) => newDefinition.components[key].parent === component.id
+          );
+        }
+
+        childComponents.forEach((componentId) => {
+          delete newDefinition.components[componentId];
+        });
+
+        delete newDefinition.components[component.id];
+      });
+
+      toast('Selected components deleted! (⌘Z to undo)', {
+        icon: '🗑️',
+      });
+      this.appDefinitionChanged(newDefinition, {
+        skipAutoSave: this.isVersionReleased(),
+      });
+      this.handleInspectorView();
+    }
   };
 
   removeComponent = (component) => {
@@ -574,7 +623,7 @@ class Editor extends React.Component {
       this.appDefinitionChanged(newDefinition, {
         skipAutoSave: this.isVersionReleased(),
       });
-      this.handleInspectorView(component);
+      this.handleInspectorView();
     }
   };
 
@@ -596,12 +645,54 @@ class Editor extends React.Component {
     );
     setStateAsync(_self, newDefinition).then(() => {
       computeComponentState(_self, _self.state.appDefinition.components);
+      this.setState({ isSaving: true });
       this.autoSave();
       this.props.ymap?.set('appDef', {
         newDefinition: newDefinition.appDefinition,
         editingVersionId: this.state.editingVersion?.id,
       });
     });
+  };
+
+  handleEditorEscapeKeyPress = () => {
+    if (this.state?.selectedComponents?.length > 0) {
+      this.setState({ selectedComponents: [] });
+      this.handleInspectorView();
+    }
+  };
+
+  moveComponents = (direction) => {
+    let appDefinition = JSON.parse(JSON.stringify(this.state.appDefinition));
+    let newComponents = appDefinition.components;
+
+    for (const selectedComponent of this.state.selectedComponents) {
+      newComponents = produce(newComponents, (draft) => {
+        let top = draft[selectedComponent.id].layouts[this.state.currentLayout].top;
+        let left = draft[selectedComponent.id].layouts[this.state.currentLayout].left;
+
+        const gridWidth = (1 * 100) / 43; // width of the canvas grid in percentage
+
+        switch (direction) {
+          case 'ArrowLeft':
+            left = left - gridWidth;
+            break;
+          case 'ArrowRight':
+            left = left + gridWidth;
+            break;
+          case 'ArrowDown':
+            top = top + 10;
+            break;
+          case 'ArrowUp':
+            top = top - 10;
+            break;
+        }
+
+        draft[selectedComponent.id].layouts[this.state.currentLayout].top = top;
+        draft[selectedComponent.id].layouts[this.state.currentLayout].left = left;
+      });
+    }
+    appDefinition.components = newComponents;
+    this.appDefinitionChanged(appDefinition);
   };
 
   cloneComponent = (newComponent) => {
@@ -612,12 +703,18 @@ class Editor extends React.Component {
     appDefinition.components[newComponent.id] = newComponent;
     this.appDefinitionChanged(appDefinition);
   };
+  decimalToHex = (alpha) => (alpha === 0 ? '00' : Math.round(255 * alpha).toString(16));
 
   globalSettingsChanged = (key, value) => {
     const appDefinition = { ...this.state.appDefinition };
-    appDefinition.globalSettings[key] = value;
+    if (value?.[1]?.a == undefined) appDefinition.globalSettings[key] = value;
+    else {
+      const hexCode = `${value?.[0]}${this.decimalToHex(value?.[1]?.a)}`;
+      appDefinition.globalSettings[key] = hexCode;
+    }
     this.setState(
       {
+        isSaving: true,
         appDefinition,
       },
       () => {
@@ -812,9 +909,22 @@ class Editor extends React.Component {
     this.setState({ showComments: !this.state.showComments });
   };
 
-  setSelectedComponent = (id, component) => {
-    this.switchSidebarTab(1);
-    this.setState({ selectedComponent: { id, component } });
+  setSelectedComponent = (id, component, multiSelect = false) => {
+    if (this.state.selectedComponents.length === 0 || !multiSelect) {
+      this.switchSidebarTab(1);
+    } else {
+      this.switchSidebarTab(2);
+    }
+
+    const isAlreadySelected = this.state.selectedComponents.find((component) => component.id === id);
+
+    if (!isAlreadySelected) {
+      this.setState((prevState) => {
+        return {
+          selectedComponents: [...(multiSelect ? prevState.selectedComponents : []), { id, component }],
+        };
+      });
+    }
   };
 
   filterQueries = (value) => {
@@ -902,21 +1012,31 @@ class Editor extends React.Component {
 
   saveEditingVersion = () => {
     if (this.isVersionReleased()) {
-      this.setState({ showCreateVersionModalPrompt: true });
+      this.setState({ isSaving: false, showCreateVersionModalPrompt: true });
     } else if (!isEmpty(this.state.editingVersion)) {
-      toast.promise(appVersionService.save(this.state.appId, this.state.editingVersion.id, this.state.appDefinition), {
-        loading: 'Saving...',
-        success: () => {
-          this.setState({
-            editingVersion: {
-              ...this.state.editingVersion,
-              ...{ definition: this.state.appDefinition },
+      appVersionService
+        .save(this.state.appId, this.state.editingVersion.id, { definition: this.state.appDefinition })
+        .then(() => {
+          this.setState(
+            {
+              saveError: false,
+              editingVersion: {
+                ...this.state.editingVersion,
+                ...{ definition: this.state.appDefinition },
+              },
             },
+            () => {
+              this.setState({
+                isSaving: false,
+              });
+            }
+          );
+        })
+        .catch(() => {
+          this.setState({ saveError: true, isSaving: false }, () => {
+            toast.error('App could not save.');
           });
-          return 'Saved!';
-        },
-        error: 'App could not save.',
-      });
+        });
     }
   };
 
@@ -955,12 +1075,24 @@ class Editor extends React.Component {
     this.props.switchDarkMode(newMode);
   };
 
+  setStateOfUnsavedQueries = (state) => {
+    this.setState({
+      isUnsavedQueriesAvailable: state,
+    });
+  };
+
   handleEvent = (eventName, options) => onEvent(this, eventName, options, 'edit');
+
+  runQuery = (queryId, queryName) => runQuery(this, queryId, queryName);
+
+  dataSourceModalHandler = () => {
+    this.dataSourceModalRef.current.dataSourceModalToggleStateHandler();
+  };
 
   render() {
     const {
       currentSidebarTab,
-      selectedComponent = {},
+      selectedComponents = [],
       appDefinition,
       appId,
       slug,
@@ -1000,7 +1132,7 @@ class Editor extends React.Component {
         {/* This is for viewer to show query confirmations */}
         <Confirm
           show={showQueryConfirmation}
-          message={'Do you want to run this query?'}
+          message={`Do you want to run this query - ${this.state.queryConfirmationData?.queryName}?`}
           onConfirm={(queryConfirmationData) => onQueryConfirm(this, queryConfirmationData)}
           onCancel={() => onQueryCancel(this)}
           queryConfirmationData={this.state.queryConfirmationData}
@@ -1034,19 +1166,30 @@ class Editor extends React.Component {
                     onBlur={(e) => this.saveAppName(this.state.app.id, e.target.value)}
                     className="form-control-plaintext form-control-plaintext-sm"
                     value={this.state.app.name}
+                    data-cy="app-name-input"
                   />
                   <span className="input-icon-addon">
                     <EditIcon />
                   </span>
                 </div>
               )}
-              {config.ENABLE_MULTIPLAYER_EDITING && (
-                <RealtimeAvatars
-                  updatePresence={this.props.updatePresence}
-                  editingVersionId={this.state?.editingVersion?.id}
-                  self={this.props.self}
-                />
-              )}
+              <span
+                className={cx('autosave-indicator', {
+                  'autosave-indicator-saving': this.state.isSaving,
+                  'text-danger': this.state.saveError,
+                  'd-none': this.isVersionReleased(),
+                })}
+                data-cy="autosave-indicator"
+              >
+                {this.state.isSaving ? (
+                  <Spinner size="small" />
+                ) : this.state.saveError ? (
+                  'Could not save changes'
+                ) : (
+                  'All changes are saved'
+                )}
+              </span>
+              {config.ENABLE_MULTIPLAYER_EDITING && <RealtimeAvatars />}
               {editingVersion && (
                 <AppVersionsManager
                   appId={appId}
@@ -1062,7 +1205,7 @@ class Editor extends React.Component {
                   <a
                     href={appVersionPreviewLink}
                     target="_blank"
-                    className={`btn btn-sm font-500 color-primary  ${app?.current_version_id ? '' : 'disabled'}`}
+                    className="btn btn-sm font-500 color-primary border-0"
                     rel="noreferrer"
                   >
                     Preview
@@ -1115,13 +1258,16 @@ class Editor extends React.Component {
               appDefinition={{
                 components: appDefinition.components,
                 queries: dataQueries,
-                selectedComponent: this.state?.selectedComponent,
+                selectedComponent: selectedComponents ? selectedComponents[selectedComponents.length - 1] : {},
               }}
               setSelectedComponent={this.setSelectedComponent}
               removeComponent={this.removeComponent}
               runQuery={(queryId, queryName) => runQuery(this, queryId, queryName)}
               toggleAppMaintenance={this.toggleAppMaintenance}
               is_maintenance_on={this.state.app.is_maintenance_on}
+              ref={this.dataSourceModalRef}
+              isSaving={this.state.isSaving}
+              isUnsavedQueriesAvailable={this.state.isUnsavedQueriesAvailable}
             />
             <div className="main main-editor-canvas" id="main-editor-canvas">
               <div
@@ -1129,7 +1275,7 @@ class Editor extends React.Component {
                 style={{ transform: `scale(${zoomLevel})` }}
                 onClick={(e) => {
                   if (['real-canvas', 'modal'].includes(e.target.className)) {
-                    this.switchSidebarTab(2);
+                    this.setState({ selectedComponents: [], currentSidebarTab: 2 });
                   }
                 }}
               >
@@ -1143,12 +1289,9 @@ class Editor extends React.Component {
                     backgroundColor: this.state.appDefinition.globalSettings.canvasBackgroundColor,
                   }}
                 >
-                  {this.props?.othersOnSameVersion?.map(({ id, presence }) => {
-                    if (!presence) return null;
-                    return (
-                      <Cursor key={id} name={presence.firstName} color={presence.color} x={presence.x} y={presence.y} />
-                    );
-                  })}
+                  {config.ENABLE_MULTIPLAYER_EDITING && (
+                    <RealtimeCursors editingVersionId={this.state?.editingVersion?.id} />
+                  )}
                   {defaultComponentStateComputed && (
                     <>
                       <Container
@@ -1165,7 +1308,7 @@ class Editor extends React.Component {
                         zoomLevel={zoomLevel}
                         currentLayout={currentLayout}
                         deviceWindowWidth={deviceWindowWidth}
-                        selectedComponent={selectedComponent}
+                        selectedComponents={selectedComponents}
                         appLoading={isLoading}
                         onEvent={this.handleEvent}
                         onComponentOptionChanged={this.handleOnComponentOptionChanged}
@@ -1178,6 +1321,7 @@ class Editor extends React.Component {
                         onComponentClick={this.handleComponentClick}
                         onComponentHover={this.handleComponentHover}
                         hoveredComponent={hoveredComponent}
+                        dataQueries={dataQueries}
                       />
                       <CustomDragLayer
                         snapToGrid={true}
@@ -1345,6 +1489,10 @@ class Editor extends React.Component {
                             apps={apps}
                             allComponents={appDefinition.components}
                             isSourceSelected={this.state.isSourceSelected}
+                            isQueryPaneDragging={this.state.isQueryPaneDragging}
+                            runQuery={this.runQuery}
+                            dataSourceModalHandler={this.dataSourceModalHandler}
+                            setStateOfUnsavedQueries={this.setStateOfUnsavedQueries}
                           />
                         </div>
                       </div>
@@ -1363,6 +1511,7 @@ class Editor extends React.Component {
                       disabled: !this.canUndo,
                     })}
                     width="44"
+                    data-tip="undo"
                     height="44"
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
@@ -1380,6 +1529,7 @@ class Editor extends React.Component {
                   </svg>
                   <svg
                     title="redo"
+                    data-tip="redo"
                     onClick={this.handleRedo}
                     xmlns="http://www.w3.org/2000/svg"
                     className={cx('cursor-pointer icon icon-tabler icon-tabler-arrow-forward-up', {
@@ -1404,26 +1554,35 @@ class Editor extends React.Component {
                   {this.renderLayoutIcon(currentLayout === 'desktop')}
                 </div>
               </div>
+
+              <EditorKeyHooks
+                moveComponents={this.moveComponents}
+                handleEditorEscapeKeyPress={this.handleEditorEscapeKeyPress}
+                removeMultipleComponents={this.removeComponents}
+              />
+
               {currentSidebarTab === 1 && (
                 <div className="pages-container">
-                  {selectedComponent &&
+                  {selectedComponents.length === 1 &&
                   !isEmpty(appDefinition.components) &&
-                  !isEmpty(appDefinition.components[selectedComponent.id]) ? (
+                  !isEmpty(appDefinition.components[selectedComponents[0].id]) ? (
                     <Inspector
                       cloneComponent={this.cloneComponent}
+                      moveComponents={this.moveComponents}
                       componentDefinitionChanged={this.componentDefinitionChanged}
                       dataQueries={dataQueries}
                       removeComponent={this.removeComponent}
-                      selectedComponentId={selectedComponent.id}
+                      selectedComponentId={selectedComponents[0].id}
                       currentState={currentState}
                       allComponents={appDefinition.components}
-                      key={selectedComponent.id}
+                      key={selectedComponents[0].id}
                       switchSidebarTab={this.switchSidebarTab}
                       apps={apps}
                       darkMode={this.props.darkMode}
+                      setSelectedComponent={this.setSelectedComponent}
                     ></Inspector>
                   ) : (
-                    <div className="mt-5 p-2">Please select a component to inspect</div>
+                    <center className="mt-5 p-2">Please select a component to inspect</center>
                   )}
                 </div>
               )}
@@ -1445,13 +1604,6 @@ class Editor extends React.Component {
               />
             )}
           </div>
-          <InitVersionCreateModal
-            showModal={this.state.showInitVersionCreateModal}
-            hideModal={() => this.setState({ showInitVersionCreateModal: false })}
-            fetchApp={this.fetchApp}
-            darkMode={this.props.darkMode}
-            appId={this.state.appId}
-          />
         </DndProvider>
       </div>
     );

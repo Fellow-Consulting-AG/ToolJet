@@ -38,10 +38,17 @@ import { renderTooltip } from '@/_helpers/appUtils';
 import { RangeSlider } from './Components/RangeSlider';
 import { Timeline } from './Components/Timeline';
 import { SvgImage } from './Components/SvgImage';
+import { Html } from './Components/Html';
+import { ButtonGroup } from './Components/ButtonGroup';
+import { CustomComponent } from './Components/CustomComponent/CustomComponent';
 import { VerticalDivider } from './Components/verticalDivider';
+import { PDF } from './Components/PDF';
+import { ColorPicker } from './Components/ColorPicker';
+import { KanbanBoard } from './Components/KanbanBoard/KanbanBoard';
+import { Steps } from './Components/Steps';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import '@/_styles/custom.scss';
-import { resolveProperties, resolveStyles } from './component-properties-resolution';
+import { resolveProperties, resolveStyles, resolveGeneralProperties } from './component-properties-resolution';
 import { validateWidget, resolveReferences } from '@/_helpers/utils';
 
 const AllComponents = {
@@ -83,7 +90,14 @@ const AllComponents = {
   RangeSlider,
   Timeline,
   SvgImage,
+  Html,
+  ButtonGroup,
+  CustomComponent,
   VerticalDivider,
+  PDF,
+  ColorPicker,
+  KanbanBoard,
+  Steps,
 };
 
 export const Box = function Box({
@@ -110,6 +124,7 @@ export const Box = function Box({
   parentId,
   allComponents,
   extraProps,
+  dataQueries,
 }) {
   const backgroundColor = yellow ? 'yellow' : '';
 
@@ -130,6 +145,7 @@ export const Box = function Box({
 
   const resolvedProperties = resolveProperties(component, currentState, null, customResolvables);
   const resolvedStyles = resolveStyles(component, currentState, null, customResolvables);
+  const resolvedGeneralProperties = resolveGeneralProperties(component, currentState, null, customResolvables);
   resolvedStyles.visibility = resolvedStyles.visibility !== false ? true : false;
 
   useEffect(() => {
@@ -182,10 +198,12 @@ export const Box = function Box({
 
   return (
     <OverlayTrigger
-      placement="top"
+      placement={inCanvas ? 'auto' : 'top'}
       delay={{ show: 500, hide: 0 }}
-      trigger={!inCanvas ? ['hover', 'focus'] : null}
-      overlay={(props) => renderTooltip({ props, text: `${component.description}` })}
+      trigger={inCanvas && !resolvedGeneralProperties.tooltip?.trim() ? null : ['hover', 'focus']}
+      overlay={(props) =>
+        renderTooltip({ props, text: inCanvas ? `${resolvedGeneralProperties.tooltip}` : `${component.description}` })
+      }
     >
       <div style={{ ...styles, backgroundColor }} role={preview ? 'BoxPreview' : 'Box'}>
         {inCanvas ? (
@@ -214,12 +232,14 @@ export const Box = function Box({
             validate={validate}
             parentId={parentId}
             customResolvables={customResolvables}
+            dataQueries={dataQueries}
           ></ComponentToRender>
         ) : (
           <div className="m-1" style={{ height: '76px', width: '76px', marginLeft: '18px' }}>
             <div
               className="component-image-holder p-2 d-flex flex-column justify-content-center"
               style={{ height: '100%' }}
+              data-cy="widget-list"
             >
               <center>
                 <div
