@@ -36,3 +36,6 @@
 /frontend/cypress/videos
 
 .idea/*
+.lh
+k8s
+deploy/docker/postgres-start.sh
