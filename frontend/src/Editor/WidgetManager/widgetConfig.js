@@ -707,7 +707,7 @@ export const widgets = [
     },
     exposedVariables: {
       value:
-        'ToolJet is an open-source low-code platform for building and deploying internal tools with minimal engineering efforts 🚀',
+        'Insight is an open-source low-code platform for building and deploying internal tools with minimal engineering efforts 🚀',
     },
     definition: {
       others: {
@@ -717,7 +717,7 @@ export const widgets = [
       properties: {
         value: {
           value:
-            'ToolJet is an open-source low-code platform for building and deploying internal tools with minimal engineering efforts 🚀',
+            'Insight is an open-source low-code platform for building and deploying internal tools with minimal engineering efforts 🚀',
         },
         placeholder: { value: 'Placeholder text' },
       },
@@ -2237,7 +2237,7 @@ const MyCustomComponent = ({data, updateData, runQuery}) => (
       </Button>
     </Container>
 );
-const ConnectedComponent = Tooljet.connectComponent(MyCustomComponent);
+const ConnectedComponent = Insight.connectComponent(MyCustomComponent);
 ReactDOM.render(<ConnectedComponent />, document.body);`,
           skipResolve: true,
         },

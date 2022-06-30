@@ -11,7 +11,7 @@ WORKDIR /app
 
 COPY ./package.json ./package.json
 
-# Building ToolJet plugins
+# Building Insight plugins
 COPY ./plugins/package.json ./plugins/package-lock.json ./plugins/
 RUN npm --prefix plugins install
 COPY ./plugins/ ./plugins/
@@ -19,7 +19,7 @@ ENV NODE_ENV=production
 RUN npm --prefix plugins run build
 RUN npm --prefix plugins prune --production
 
-# Building ToolJet server
+# Building Insight server
 COPY ./server/package.json ./server/package-lock.json ./server/
 RUN npm --prefix server install --only=production
 COPY ./server/ ./server/

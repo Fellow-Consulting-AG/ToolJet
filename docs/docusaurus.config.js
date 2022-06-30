@@ -2,21 +2,21 @@ const isProd = process.env.NODE_ENV === 'production';
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: 'ToolJet - Documentation',
+  title: 'Insight - Documentation',
   tagline: 'Low-code framework to Build internal tools and business apps.',
   url: 'https://docs.tooljet.com',
   baseUrl: '/',
   onBrokenLinks: 'ignore',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/logo.svg',
-  organizationName: 'ToolJet', // Usually your GitHub org/user name.
-  projectName: 'ToolJet', // Usually your repo name.
+  organizationName: 'Insight', // Usually your GitHub org/user name.
+  projectName: 'Insight', // Usually your repo name.
   themeConfig: {
     image: 'img/tooljet-og-image.png',
     announcementBar: {
       id: 'support_us',
       content:
-        '⭐️ If you like ToolJet, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/ToolJet/ToolJet">GitHub</a> and follow us on <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/ToolJet">Twitter</a>',
+        '⭐️ If you like Insight, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/Insight/Insight">GitHub</a> and follow us on <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/Insight">Twitter</a>',
       backgroundColor: '#4D72DA',
       textColor: '#ffffff',
       isCloseable: true,
@@ -36,7 +36,7 @@ module.exports = {
     navbar: {
       logo: {
         href: '/docs',
-        alt: 'ToolJet Logo',
+        alt: 'Insight Logo',
         src: 'img/logo.svg',
         width: 90
       },
@@ -46,7 +46,7 @@ module.exports = {
           position: 'left',
         },
         {
-          href: 'https://github.com/ToolJet/ToolJet',
+          href: 'https://github.com/Insight/Insight',
           label: 'GitHub',
           position: 'right',
         },
@@ -56,7 +56,7 @@ module.exports = {
           position: 'right',
         },
         {
-          href: 'https://twitter.com/ToolJet',
+          href: 'https://twitter.com/Insight',
           label: 'Twitter',
           position: 'right',
         },
@@ -88,7 +88,7 @@ module.exports = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/ToolJet/ToolJet',
+              href: 'https://github.com/Insight/Insight',
             },
             {
               label: 'Slack',
@@ -96,12 +96,12 @@ module.exports = {
             },
             {
               label: 'Twitter',
-              href: 'https://twitter.com/ToolJet',
+              href: 'https://twitter.com/Insight',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} ToolJet Solutions, Inc.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Insight Solutions, Inc.`,
     },
     algolia: {
       appId: 'O8HQRLI0WA',
@@ -119,7 +119,7 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl:
-            'https://github.com/ToolJet/Tooljet/blob/main/docs/',
+            'https://github.com/Insight/Insight/blob/main/docs/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),

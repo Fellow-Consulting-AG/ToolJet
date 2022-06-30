@@ -35,9 +35,9 @@ const sidebars = {
       label: 'Tutorial',
       link: {
         type: 'generated-index',
-        title: 'Getting Started with ToolJet',
+        title: 'Getting Started with Insight',
         description:
-          "A primer on getting started with building an application with ToolJet!",
+          "A primer on getting started with building an application with Insight!",
         keywords: ['tutorial'],
       },
       items: [
@@ -164,7 +164,7 @@ const sidebars = {
         type: 'generated-index',
         title: 'How To Guides',
         description:
-          "How To Guides for all the things ToolJet",
+          "How To Guides for all the things Insight",
         keywords: ['how to'],
       },
       items: [
@@ -230,7 +230,7 @@ const sidebars = {
         type: 'generated-index',
         title: 'Contributing Guide',
         description:
-          "Guides for contributing to ToolJet",
+          "Guides for contributing to Insight",
         keywords: ['contribute','contributing'],
       },
       collapsed: false,

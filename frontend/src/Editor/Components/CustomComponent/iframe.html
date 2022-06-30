@@ -8,7 +8,7 @@
         <script data-required="true">
             let callbackFn = () => {};
             let props = {};
-            window.Tooljet = {
+            window.Insight = {
                 componentId: window.frameElement.getAttribute('data-id'),
                 subscribe: fn => {
                     fn(props);
@@ -19,19 +19,19 @@
                     from: 'customComponent',
                     message: "RUN_QUERY",
                     queryName: name,
-                    componentId: window.Tooljet.componentId
+                    componentId: window.Insight.componentId
                 }, "*")},
                 updateProps: obj => window.parent.postMessage({
                     from: 'customComponent',
                     message: "UPDATE_DATA",
                     updatedObj: obj,
-                    componentId: window.Tooljet.componentId
+                    componentId: window.Insight.componentId
                 }, "*"),
                 init: () => {
                     window.parent.postMessage({
                         from: 'customComponent',
                         message: "INIT",
-                        componentId: window.Tooljet.componentId,
+                        componentId: window.Insight.componentId,
                     }, "*");
             
                     window.addEventListener('message', (e) => {
@@ -60,23 +60,23 @@
                 }
             }
             window.addEventListener('load', function() {
-                window.Tooljet.init();
+                window.Insight.init();
             })
         </script>
-        <script type="text/babel" data-required="true"> window.Tooljet.connectComponent = WrappedComponent => {
+        <script type="text/babel" data-required="true"> window.Insight.connectComponent = WrappedComponent => {
             class ConnectedComponent extends React.Component {
                 constructor() {
                     super(), this.state = {}
                 }
                 componentDidMount() {
-                    window.Tooljet.subscribe((e => this.setState({
+                    window.Insight.subscribe((e => this.setState({
                         data: e
                     })))
                 }
                 render() {
                 return <WrappedComponent data={this.state?.data ?? {}} 
-                    updateData={(e) => Tooljet.updateProps(e)} 
-                    runQuery={(e) => Tooljet.runQuery(e)}/>
+                    updateData={(e) => Insight.updateProps(e)} 
+                    runQuery={(e) => Insight.runQuery(e)}/>
                 }
             }
             return ConnectedComponent;
