@@ -87,8 +87,10 @@ jobs:
           registry: << parameters.registry >>
           tag: << pipeline.git.branch >>-latest
 
+# Create/Update Digitalocean Deployment
   deploy:
-    executor: gcp-gcr/default
+    executor: 
+      name: gcp-gcr/default
     resource_class: small
     parameters:
       branch:
@@ -109,15 +111,17 @@ jobs:
         type: string
         default: ""
       deployment:
-        description: Deployment name.
-        type: string
-      deployment_celery:
-        description: Celery deployment name.
+        description: |
+          Deployment name.
         type: string
       container:
         description: |
           The deployment container including the registry and path.
         type: string
+
+    steps:
+      - checkout  
+
       - kubernetes/install-kubectl
       - digitalocean/install
       - digitalocean/initialize:
@@ -129,6 +133,8 @@ jobs:
       
           kubectl patch deployment << parameters.deployment >> -n << parameters.namespace >> \
             --patch '{"spec":{"template":{"spec":{"containers":[{"name":"<< parameters.deployment >>", "image": "<< parameters.container >>:<< pipeline.parameters.GHA_Meta >>"}]}}}}'
+          
+          kubectl rollout restart deployment << parameters.deployment >> -n << parameters.namespace >>
 
 
 
@@ -160,7 +166,6 @@ workflows:
           namespace: tooljet-dev
           deployment: tooljet-dev
           tag: << pipeline.parameters.GHA_Meta >>
-          context: Digitalocean
           container: registry.digitalocean.com/cloudintegration/tooljet
           cluster-name: k8s-1-21-2-do-1-fra1-1625240177379
           requires:
