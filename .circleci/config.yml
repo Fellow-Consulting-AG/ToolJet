@@ -87,6 +87,51 @@ jobs:
           registry: << parameters.registry >>
           tag: << pipeline.git.branch >>-latest
 
+  deploy:
+    executor: gcp-gcr/default
+    resource_class: small
+    parameters:
+      branch:
+        description: |
+          Git branch -> important for k8s file
+        type: string
+      tag:
+        description: |
+          Tag to use for image.
+        type: string
+      cluster-name:
+        description: |
+          Name of the GKE cluster
+        type: string
+      namespace:
+        description: |
+          The deployment namespace.
+        type: string
+        default: ""
+      deployment:
+        description: Deployment name.
+        type: string
+      deployment_celery:
+        description: Celery deployment name.
+        type: string
+      container:
+        description: |
+          The deployment container including the registry and path.
+        type: string
+      - kubernetes/install-kubectl
+      - digitalocean/install
+      - digitalocean/initialize:
+          digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
+      - run: doctl kubernetes cluster kubeconfig save << parameters.cluster-name >>
+
+# kubectl patch deployment deployment-name -n namespace --patch '{"spec":{"template":{"spec":{"containers":[{"name":"deployment-name", "image": "registry:tag"}]}}}}'
+      - run: |
+      
+          kubectl patch deployment << parameters.deployment >> -n << parameters.namespace >> \
+            --patch '{"spec":{"template":{"spec":{"containers":[{"name":"<< parameters.deployment >>", "image": "<< parameters.container >>:<< pipeline.parameters.GHA_Meta >>"}]}}}}'
+
+
+
 workflows:
   version: 2
   display:
@@ -109,3 +154,14 @@ workflows:
             - GitHub
           tag: << pipeline.parameters.GHA_Meta >>
           image: cloudintegration/tooljet
+
+      - deploy:
+          branch: << pipeline.git.branch >>
+          namespace: tooljet-dev
+          deployment: tooljet-dev
+          tag: << pipeline.parameters.GHA_Meta >>
+          context: Digitalocean
+          container: registry.digitalocean.com/cloudintegration/tooljet
+          cluster-name: k8s-1-21-2-do-1-fra1-1625240177379
+          requires:
+            - build-and-push
