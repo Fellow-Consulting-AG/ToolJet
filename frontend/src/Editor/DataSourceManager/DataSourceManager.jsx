@@ -628,7 +628,7 @@ class DataSourceManager extends React.Component {
                 <small>
                   <a
                     className="color-primary"
-                    href={`https://docs.tooljet.io/docs/data-sources/${selectedDataSource.kind}`}
+                    href={`https://docs.polydocs.io/docs/data-sources/${selectedDataSource.kind}`}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -662,7 +662,7 @@ class DataSourceManager extends React.Component {
               <div className="col">
                 <small>
                   <a
-                    href={`https://docs.tooljet.io/docs/data-sources/${selectedDataSource.kind}`}
+                    href={`https://docs.polydocs.io/docs/data-sources/${selectedDataSource.kind}`}
                     target="_blank"
                     rel="noreferrer"
                   >

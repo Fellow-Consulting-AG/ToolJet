@@ -459,7 +459,7 @@ export const SubContainer = ({
         <div className="mx-auto mt-5 w-50 p-5 bg-light no-components-box">
           <center className="text-muted">
             Drag components from the right sidebar and drop here. Check out our{' '}
-            <a href="https://docs.tooljet.io/docs/tutorial/adding-widget" target="_blank" rel="noreferrer">
+            <a href="https://docs.polydocs.io/docs/tutorial/adding-widget" target="_blank" rel="noreferrer">
               guide
             </a>{' '}
             on adding widgets.

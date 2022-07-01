@@ -35,7 +35,7 @@ return data.filter(row => row.amount > 1000);`;
         Transformations can be used to transform the results of queries. All the app variables are accessible from
         transformers and supports JS libraries such as Lodash & Moment.
         <br />
-        <a href="https://docs.tooljet.io/docs/tutorial/transformations" target="_blank" rel="noreferrer">
+        <a href="https://docs.polydocs.io/docs/tutorial/transformations" target="_blank" rel="noreferrer">
           Read documentation
         </a>
         .

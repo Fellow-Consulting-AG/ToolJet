@@ -93,7 +93,7 @@ class App extends React.Component {
                 <p>A new version of Insight has been released.</p>
                 <div className="btn-list">
                   <a
-                    href="https://docs.tooljet.io/docs/setup/updating"
+                    href="https://docs.polydocs.io/docs/setup/updating"
                     target="_blank"
                     className="btn btn-info"
                     rel="noreferrer"
