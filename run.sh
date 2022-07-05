@@ -10,3 +10,4 @@ execute_command "cd $(pwd)/server && npm run start:dev"
 cd ./frontend && npm start 
 open http://127.0.0.1:8082
 
+
