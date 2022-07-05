@@ -16,6 +16,12 @@ type Git = {
   clientId: string;
   clientSecret: string;
 };
+type Polydocs = {
+  clientId: string;
+  clientSecret: string;
+  url: string;
+};
+
 @Entity({ name: 'sso_configs' })
 export class SSOConfigs {
   @PrimaryGeneratedColumn('uuid')
@@ -25,10 +31,10 @@ export class SSOConfigs {
   organizationId: string;
 
   @Column({ name: 'sso' })
-  sso: 'google' | 'git' | 'form';
+  sso: 'google' | 'git' | 'polydocs' | 'form';
 
   @Column({ type: 'json' })
-  configs: Google | Git;
+  configs: Google | Git | Polydocs;
 
   @Column({ name: 'enabled' })
   enabled: boolean;

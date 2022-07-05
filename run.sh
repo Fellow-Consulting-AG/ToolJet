@@ -4,8 +4,8 @@ execute_command () {
     osascript -e "$cmd"
 }
 
-execute_command "cd /Users/ben/dev/tooljet/plugins && npm start"
-execute_command "cd /Users/ben/dev/tooljet/server && npm run start:dev"
+execute_command "cd $(pwd)/plugins && npm start"
+execute_command "cd $(pwd)/server && npm run start:dev"
 
 cd ./frontend && npm start 
 open http://127.0.0.1:8082

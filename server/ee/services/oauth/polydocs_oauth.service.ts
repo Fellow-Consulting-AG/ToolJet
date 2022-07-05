@@ -3,16 +3,22 @@ import { ConfigService } from '@nestjs/config';
 import got from 'got';
 import UserResponse from './models/user_response';
 
-// oauth2/token, /api/me -> also for email
-
-
 @Injectable()
-export class GitOAuthService {
-  constructor(private readonly configService: ConfigService) {}
-  private readonly authUrl = 'https://github.com/login/oauth/access_token';
-  private readonly getUserUrl = 'https://api.github.com/user';
-  private readonly getUserEmailUrl = 'https://api.github.com/user/emails';
+export class PolydocsOAuthService {
+  private prefix = '';
+  constructor(private readonly configService: ConfigService) {
+    // only use prefix to determine the auth service url
+    if (this.configService.get<string>('PREFIX') === 'prod' || this.configService.get<string>('PREFIX') === 'sandbox') {
+      this.prefix = '';
+    } else {
+      this.prefix = this.configService.get<string>('PREFIX') + '.';
+    }
+  }
+  private readonly authUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/oauth2/token';
+  private readonly getUserUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/api/me';
+  private readonly getUserEmailUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/api/me';
 
+  // AuthResponse will need to be changed!
   async #getUserDetails({ access_token }: AuthResponse): Promise<UserResponse> {
     const response: any = await got(this.getUserUrl, {
       method: 'get',
@@ -36,7 +42,7 @@ export class GitOAuthService {
   async #getEmailId(access_token: string) {
     const response: any = await got(this.getUserEmailUrl, {
       method: 'get',
-      headers: { Accept: 'application/json', Authorization: `token ${access_token}` },
+      headers: { Accept: 'application/json', Authorization: `X-API-KEY ${access_token}` },
     }).json();
 
     return response?.find((emails) => emails.primary)?.email;
@@ -45,8 +51,10 @@ export class GitOAuthService {
   async signIn(code: string, configs: any): Promise<any> {
     const response: any = await got(this.authUrl, {
       method: 'post',
-      headers: { Accept: 'application/json' },
-      json: { client_id: configs.clientId, client_secret: configs.clientSecret, code },
+      headers: {
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + btoa(configs.clientId + ':' + configs.clientSecret),
+      },
     }).json();
 
     return await this.#getUserDetails(response);

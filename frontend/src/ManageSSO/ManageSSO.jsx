@@ -6,6 +6,7 @@ import { GeneralSettings } from './GeneralSettings';
 import { Google } from './Google';
 import { Loader } from './Loader';
 import { Git } from './Git';
+import { Polydocs } from './Polydocs';
 import { Form } from './Form';
 
 export function ManageSSO({ switchDarkMode, darkMode }) {
@@ -13,6 +14,7 @@ export function ManageSSO({ switchDarkMode, darkMode }) {
     { id: 'general-settings', label: 'General Settings' },
     { id: 'google', label: 'Google' },
     { id: 'git', label: 'GitHub' },
+    { id: 'polydocs', label: 'Polydocs' },
     { id: 'form', label: 'Password Login' },
   ];
   const changePage = useCallback(
@@ -33,6 +35,10 @@ export function ManageSSO({ switchDarkMode, darkMode }) {
         return <Google updateData={updateData} settings={ssoData?.sso_configs?.find((obj) => obj.sso === 'google')} />;
       case 'git':
         return <Git updateData={updateData} settings={ssoData?.sso_configs?.find((obj) => obj.sso === 'git')} />;
+      case 'polydocs':
+        return (
+          <Polydocs updateData={updateData} settings={ssoData?.sso_configs?.find((obj) => obj.sso === 'polydocs')} />
+        );
       case 'form':
         return <Form updateData={updateData} settings={ssoData?.sso_configs?.find((obj) => obj.sso === 'form')} />;
       default:

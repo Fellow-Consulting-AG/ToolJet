@@ -7,6 +7,7 @@ import { UsersService } from '@services/users.service';
 import { GoogleOAuthService } from './google_oauth.service';
 import { decamelizeKeys } from 'humps';
 import { GitOAuthService } from './git_oauth.service';
+import { PolydocsOAuthService } from './polydocs_oauth.service';
 import UserResponse from './models/user_response';
 import { OrganizationUser } from 'src/entities/organization_user.entity';
 import { Organization } from 'src/entities/organization.entity';
@@ -20,7 +21,8 @@ export class OauthService {
     private readonly jwtService: JwtService,
     private readonly organizationUsersService: OrganizationUsersService,
     private readonly googleOAuthService: GoogleOAuthService,
-    private readonly gitOAuthService: GitOAuthService
+    private readonly gitOAuthService: GitOAuthService,
+    private readonly polydocsOAuthService: PolydocsOAuthService
   ) {}
 
   #isValidDomain(email: string, restrictedDomain: string): boolean {
@@ -121,6 +123,9 @@ export class OauthService {
 
       case 'git':
         userResponse = await this.gitOAuthService.signIn(token, configs);
+        break;
+      case 'polydocs':
+        userResponse = await this.polydocsOAuthService.signIn(token, configs);
         break;
 
       default:
