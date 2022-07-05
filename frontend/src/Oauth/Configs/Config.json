@@ -12,5 +12,12 @@
     "params": {
       "token": "id_token"
     }
+  },
+  "polydocs": {
+    "name": "Polydocs",
+    "responseType": "query",
+    "params": {
+      "token": "code"
+    }
   }
 }
