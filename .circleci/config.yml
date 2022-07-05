@@ -136,152 +136,17 @@ jobs:
 
           kubectl rollout restart deployment << parameters.deployment >> -n << parameters.namespace >>
 
-  deploy_terraform:
-    executor: gcp-gcr/default
-    resource_class: small
-    parameters:
-      tag:
-        description: Tag to use for image.
-        type: string
-      api-key:
-        description: api-key
-        type: string
-
-    steps:
-      - run: |
-          curl -X 'POST' \
-            'https://<<pipeline.git.branch >>.terraform.cloudintegration.eu/version/update_docker_version?registry=insight&version=<< pipeline.parameters.GHA_Meta >>' \
-            -H 'accept: application/json' \
-            -H 'X-API-KEY: << parameters.api-key >>' \
-            -d ''
-          sleep 5
-          curl -X 'GET' \
-            'https://<<pipeline.git.branch >>.terraform.cloudintegration.eu/webhook/insight/refresh' \
-            -H 'accept: application/json' \
-            -H 'X-API-KEY: << parameters.api-key >>' \
-            -d ''
-
-  deploy_terraform_prod:
-    executor: gcp-gcr/default
-    parameters:
-      tag:
-        description: Tag to use for image.
-        type: string
-      api-key:
-        description: api-key
-        type: string
-
-    steps:
-      - run: |
-          curl -X 'POST' \
-            'https://terraform.cloudintegration.eu/version/update_docker_version?registry=insight&version=<< pipeline.parameters.GHA_Meta >>' \
-            -H 'accept: application/json' \
-            -H 'X-API-KEY: << parameters.api-key >>' \
-            -d ''
-          curl -X 'GET' \
-            'https://terraform.cloudintegration.eu/webhook/insight/refresh' \
-            -H 'accept: application/json' \
-            -H 'X-API-KEY: << parameters.api-key >>' \
-            -d ''
-
 workflows:
   version: 2
   display:
     jobs:
       - empty
-  deployment_workflow_dev:
+  deployment_workflow:
     when:
       and:
         - equal: ["dev", << pipeline.git.branch >>]
-        - equal: ["CircleCI", << pipeline.parameters.GHA_Action >>]
-    jobs:
-      # Build and push Docker image to Digitalocean Registry
-      - build-and-push:
-          context:
-            - Digitalocean
-            - GitHub
-          tag: << pipeline.parameters.GHA_Meta >>
-          image: cloudintegration/tooljet
-
-      - deploy:
-          branch: << pipeline.git.branch >>
-          namespace: tooljet-dev
-          deployment: tooljet-dev
-          tag: << pipeline.parameters.GHA_Meta >>
-          container: registry.digitalocean.com/cloudintegration/tooljet
-          cluster-name: k8s-1-21-2-do-1-fra1-1625240177379
-          requires:
-            - build-and-push
-
-      - deploy_terraform:
-          tag: << pipeline.parameters.GHA_Meta >>
-          api-key: 8atbbjpdZJTR7s669S7si851bFayy5MhdNE21T2wqazvZhz8MBm6vzQGdxpeuLAIvgqncf1UZ6X51n31QnZprQdC5weJTv102lRSqM2iv5TZ9Pkihm3iVc9B12lZknaq
-          requires:
-            - build-and-push
-
-  deployment_workflow_stage:
-    when:
-      and:
         - equal: ["stage", << pipeline.git.branch >>]
-        - equal: ["CircleCI", << pipeline.parameters.GHA_Action >>]
-    jobs:
-      # Build and push Docker image to Digitalocean Registry
-      - build-and-push:
-          context:
-            - Digitalocean
-            - GitHub
-          tag: << pipeline.parameters.GHA_Meta >>
-          image: cloudintegration/tooljet
-
-      - deploy:
-          branch: << pipeline.git.branch >>
-          namespace: tooljet-dev
-          deployment: tooljet-dev
-          tag: << pipeline.parameters.GHA_Meta >>
-          container: registry.digitalocean.com/cloudintegration/tooljet
-          cluster-name: k8s-1-21-2-do-1-fra1-1625240177379
-          requires:
-            - build-and-push
-
-      - deploy_terraform:
-          tag: << pipeline.parameters.GHA_Meta >>
-          api-key: UMkgUNzDoZNmlWBEBOELOGtEmd5w66UleOZIUM9JfGrM4OeAH3dDkhO1BwJhYeJ9SDMV7Ul94P4eRSK3uk4DWr42ly7aVehbwwOm6Mu0hVHzI0utlaQZqpKtLS0hBGop
-          requires:
-            - build-and-push
-
-  deployment_workflow_sandbox:
-    when:
-      and:
         - equal: ["sandbox", << pipeline.git.branch >>]
-        - equal: ["CircleCI", << pipeline.parameters.GHA_Action >>]
-    jobs:
-      # Build and push Docker image to Digitalocean Registry
-      - build-and-push:
-          context:
-            - Digitalocean
-            - GitHub
-          tag: << pipeline.parameters.GHA_Meta >>
-          image: cloudintegration/tooljet
-
-      - deploy:
-          branch: << pipeline.git.branch >>
-          namespace: tooljet-dev
-          deployment: tooljet-dev
-          tag: << pipeline.parameters.GHA_Meta >>
-          container: registry.digitalocean.com/cloudintegration/tooljet
-          cluster-name: k8s-1-21-2-do-1-fra1-1625240177379
-          requires:
-            - build-and-push
-
-      - deploy_terraform:
-          tag: << pipeline.parameters.GHA_Meta >>
-          api-key: 26CuVBsJUTfSP20KdR5jwHbOCaEHHdMzR1ZUPHHtf8voY8nXee4uh1Hr64cKIx2yBQ6mnrTNaxZXsvwLPyJTubbRm31O6kyvrShApSMrxJSl0U6XSFKlrLVA1tur7ALq
-          requires:
-            - build-and-push
-
-  deployment_workflow_prod:
-    when:
-      and:
         - equal: ["prod", << pipeline.git.branch >>]
         - equal: ["CircleCI", << pipeline.parameters.GHA_Action >>]
     jobs:
@@ -295,16 +160,10 @@ workflows:
 
       - deploy:
           branch: << pipeline.git.branch >>
-          namespace: tooljet-dev
-          deployment: tooljet-dev
+          namespace: tooljet
+          deployment: tooljet-<< pipeline.git.branch >>
           tag: << pipeline.parameters.GHA_Meta >>
           container: registry.digitalocean.com/cloudintegration/tooljet
           cluster-name: k8s-1-21-2-do-1-fra1-1625240177379
-          requires:
-            - build-and-push
-
-      - deploy_terraform_prod:
-          tag: << pipeline.parameters.GHA_Meta >>
-          api-key: 26CuVBsJUTfSP20KdR5jwHbOCaEHHdMzR1ZUPHHtf8voY8nXee4uh1Hr64cKIx2yBQ6mnrTNaxZXsvwLPyJTubbRm31O6kyvrShApSMrxJSl0U6XSFKlrLVA1tur7ALq
           requires:
             - build-and-push
