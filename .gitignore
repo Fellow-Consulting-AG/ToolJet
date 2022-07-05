@@ -42,3 +42,4 @@ deploy/docker/postgres-start.sh
 docs/share-with-tini
 .docker.env
 docs/insight-docs.zip
+test.py
