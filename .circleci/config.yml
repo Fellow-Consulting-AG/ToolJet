@@ -132,7 +132,8 @@ jobs:
       - run: |
 
           kubectl patch deployment << parameters.deployment >> -n << parameters.namespace >> \
-            --patch '{"spec":{"template":{"spec":{"containers":[{"name":"<< parameters.deployment >>", "image": "<< parameters.container >>:<< pipeline.parameters.GHA_Meta >>"}]}}}}'
+            --patch '{"spec":{"template":{"spec":{"containers":[{"name":"<< parameters.deployment >>", "image": \
+            "<< parameters.container >>:<< pipeline.parameters.GHA_Meta >>"}]}}}}'
 
           kubectl rollout restart deployment << parameters.deployment >> -n << parameters.namespace >>
 
@@ -144,10 +145,11 @@ workflows:
   deployment_workflow:
     when:
       and:
-        - equal: ["dev", << pipeline.git.branch >>]
-        - equal: ["stage", << pipeline.git.branch >>]
-        - equal: ["sandbox", << pipeline.git.branch >>]
-        - equal: ["prod", << pipeline.git.branch >>]
+        - or:
+          - equal: ["dev", << pipeline.git.branch >>]
+          - equal: ["stage", << pipeline.git.branch >>]
+          - equal: ["sandbox", << pipeline.git.branch >>]
+          - equal: ["prod", << pipeline.git.branch >>]
         - equal: ["CircleCI", << pipeline.parameters.GHA_Action >>]
     jobs:
       # Build and push Docker image to Digitalocean Registry
