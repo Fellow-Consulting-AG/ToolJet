@@ -7,6 +7,7 @@ export const RedirectSso = function RedirectSso() {
   const [organization, setOrganization] = useState([]);
   const [googlessoEnabled, setGoogleSsoEnabled] = useState(false);
   const [gitSsoEnabled, setGitSsoEnabled] = useState(false);
+  const [polydocsSsoEnabled, setPolydocsSsoEnabled] = useState(false);
 
   const copyFunction = (input) => {
     let text = document.getElementById(input).innerHTML;
@@ -27,6 +28,7 @@ export const RedirectSso = function RedirectSso() {
       Object.keys(organization).map((item) => {
         if (item == 'google') setGoogleSsoEnabled(true);
         if (item == 'git') setGitSsoEnabled(true);
+        if (item == 'polydocs') setPolydocsSsoEnabled(true);
       });
   }, [organization]);
 
@@ -156,6 +158,29 @@ export const RedirectSso = function RedirectSso() {
                           <div className="flexer">
                             <span> Redirect URL :</span>
                             <p id="git-url">{`${window.location.protocol}//${window.location.host}/sso/git/${organization?.git?.config_id}`}</p>
+
+                            <img
+                              onClick={() => copyFunction('git-url')}
+                              src={`/assets/images/icons/copy.svg`}
+                              width="16"
+                              height="16"
+                              className="sso-copy"
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <div>
+                      {polydocsSsoEnabled && (
+                        <>
+                          <p className="sso-type ">
+                            <span className="">-</span>
+                            GitHub : <a href="https://docs.polydocs.com/docs/sso/github"> Link</a>
+                          </p>
+
+                          <div className="flexer">
+                            <span> Redirect URL :</span>
+                            <p id="git-url">{`${window.location.protocol}//${window.location.host}/sso/polydocs/${organization?.polydocs?.config_id}`}</p>
 
                             <img
                               onClick={() => copyFunction('git-url')}

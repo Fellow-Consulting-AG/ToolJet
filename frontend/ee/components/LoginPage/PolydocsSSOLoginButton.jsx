@@ -1,19 +1,19 @@
 import React from 'react';
 import { buildURLWithQuery } from '@/_helpers/utils';
 
-export default function PolydocsSSOLoginButton({ configs }) {
+export default function PolydocsSSOLoginButton({ _configs }) {
   const url = 'https://dev.auth.cloudintegration.eu/oauth2/authorize';
   const polydocsLogin = (e) => {
     e.preventDefault();
     console.log('----------------------------------------------------------------');
     console.log('url: ' + url);
     window.location.href = buildURLWithQuery(url, {
-      client_id: configs?.client_id,
+      client_id: 'JizaDkIEvikNCPKC5Lsu1tWZ',
       scope: 'profile',
       response_type: 'code',
     });
-    console.log('----------------------------------------------------------------');
-    console.log('getting code');
+    // console.log('----------------------------------------------------------------');
+    // console.log('getting code');
   };
   return (
     <div data-cy="polydocs-tile">
@@ -26,3 +26,4 @@ export default function PolydocsSSOLoginButton({ configs }) {
     </div>
   );
 }
+

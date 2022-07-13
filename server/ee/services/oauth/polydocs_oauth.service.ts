@@ -8,25 +8,20 @@ import UserResponse from './models/user_response';
 @Injectable()
 export class PolydocsOAuthService {
   private prefix = '';
-  private suffix = '';
+  private prefix_tooljet = '';
   private redirectUrl = '';
   private getUserUrl = '';
   private tokenUrl = '';
   constructor(private readonly configService: ConfigService) {
     // only use prefix to determine the auth service url
     const prefix_env = this.configService.get<string>('PREFIX');
-    if (prefix_env === 'prod' || prefix_env === 'sandbox') {
-      this.prefix = '';
+    if (prefix_env === 'sandbox') {
+      this.prefix_tooljet = 'sandbox.';
     } else {
       this.prefix = prefix_env + '.';
     }
 
-    if (this.configService.get<string>('TOOLJET_HOST').endsWith('/') === false) {
-      this.suffix = '/';
-      // console.log('set suffix to: ' + this.suffix);
-    }
-
-    this.redirectUrl = this.configService.get<string>('TOOLJET_HOST') + this.suffix + 'login/oauth/authorize';
+    this.redirectUrl = 'https://' + this.prefix_tooljet + 'insight.polydocs.io/login/oauth/authorize';
     this.tokenUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/oauth2/token';
     this.getUserUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/api/me';
   }
@@ -59,16 +54,19 @@ export class PolydocsOAuthService {
 
   async signIn(code: string, configs: any): Promise<any> {
     // console.log('enter signIn function');
-    const token = 'Basic ' + Buffer.from(configs.clientId + ':' + configs.clientSecret).toString('base64');
+    const token =
+      'Basic Sml6YURrSUV2aWtOQ1BLQzVMc3UxdFdaOkd5anlmdGlYZVNBVG0zNFNQWEJmRFhIN3FaRjRuNHFCUFNZNnpJaGU5WVdEVnFKWQ==';
+    // 'Basic ' + Buffer.from(configs.clientId + ':' + configs.clientSecret).toString('base64');
 
     console.error('----------------------------------------------------------------');
     console.error('redirectUrl: ' + this.redirectUrl + ' requestUrl: ' + this.tokenUrl + '\n\ncode: ' + code);
+    // this.redirectUrl = 'http://127.0.0.1:8082/login/oauth/authorize';
 
     const response: any = await got
       .post(this.tokenUrl, {
         form: {
           grant_type: 'authorization_code',
-          client_id: configs.clientId,
+          client_id: 'JizaDkIEvikNCPKC5Lsu1tWZ',
           code: code,
           redirect_uri: this.redirectUrl,
         },
