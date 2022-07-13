@@ -12,6 +12,8 @@ export default function PolydocsSSOLoginButton({ configs }) {
       scope: 'profile',
       response_type: 'code',
     });
+    console.log('----------------------------------------------------------------');
+    console.log('getting code');
   };
   return (
     <div data-cy="polydocs-tile">

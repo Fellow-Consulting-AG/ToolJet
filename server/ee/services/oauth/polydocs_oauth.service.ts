@@ -25,15 +25,7 @@ export class PolydocsOAuthService {
       this.suffix = '/';
       // console.log('set suffix to: ' + this.suffix);
     }
-    // this.prefix = 'dev.';
-    // console.log(
-    //   'this.configService.get<string>("TOOLJET_HOST").endsWith("/"): ' +
-    //     this.configService.get<string>('TOOLJET_HOST').endsWith('/') +
-    //     ' - ' +
-    //     this.configService.get<string>('TOOLJET_HOST') +
-    //     this.suffix +
-    //     'login/oauth/authorize'
-    // );
+
     this.redirectUrl = this.configService.get<string>('TOOLJET_HOST') + this.suffix + 'login/oauth/authorize';
     this.tokenUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/oauth2/token';
     this.getUserUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/api/me';
@@ -48,7 +40,7 @@ export class PolydocsOAuthService {
       },
     }).json();
 
-    // console.log('response of url:' + this.getUserUrl + ' , res: ' + JSON.stringify(response));
+    console.log('response of url:' + this.getUserUrl + ' , res: ' + JSON.stringify(response));
 
     const email = response.username;
     const firstName = response.first_name;
@@ -69,8 +61,8 @@ export class PolydocsOAuthService {
     // console.log('enter signIn function');
     const token = 'Basic ' + Buffer.from(configs.clientId + ':' + configs.clientSecret).toString('base64');
 
-    // console.log('--------------------------------');
-    // console.log('redirectUrl: ' + this.redirectUrl + ' requestUrl: ' + this.tokenUrl);
+    console.error('----------------------------------------------------------------');
+    console.error('redirectUrl: ' + this.redirectUrl + ' requestUrl: ' + this.tokenUrl + '\n\ncode: ' + code);
 
     const response: any = await got
       .post(this.tokenUrl, {
@@ -87,8 +79,8 @@ export class PolydocsOAuthService {
       })
       .json();
 
-    // console.log('----------------------------------------------------');
-    // console.log('response access_token: ' + JSON.stringify(response));
+    console.log('----------------------------------------------------');
+    console.log('response access_token: ' + JSON.stringify(response));
 
     return await this.#getUserDetails(response['access_token']);
   }
