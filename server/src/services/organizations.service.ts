@@ -57,6 +57,7 @@ export class OrganizationsService {
         name,
         createdAt: new Date(),
         updatedAt: new Date(),
+        enableSignUp: true,
       })
     );
 
