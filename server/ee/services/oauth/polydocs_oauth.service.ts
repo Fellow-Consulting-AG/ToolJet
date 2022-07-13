@@ -1,91 +1,95 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+// import formData from 'form-data';
 import got from 'got';
 import UserResponse from './models/user_response';
+// import FormData from 'form-data';
 
 @Injectable()
 export class PolydocsOAuthService {
   private prefix = '';
   private suffix = '';
+  private redirectUrl = '';
+  private getUserUrl = '';
+  private tokenUrl = '';
   constructor(private readonly configService: ConfigService) {
     // only use prefix to determine the auth service url
-    if (this.configService.get<string>('PREFIX') === 'prod' || this.configService.get<string>('PREFIX') === 'sandbox') {
+    const prefix_env = this.configService.get<string>('PREFIX');
+    if (prefix_env === 'prod' || prefix_env === 'sandbox') {
       this.prefix = '';
     } else {
-      this.prefix = this.configService.get<string>('PREFIX') + '.';
+      this.prefix = prefix_env + '.';
     }
 
-    if (this.configService.get<string>('TOOLJET_HOST').slice(-1) !== '/') {
+    if (this.configService.get<string>('TOOLJET_HOST').endsWith('/') === false) {
       this.suffix = '/';
+      // console.log('set suffix to: ' + this.suffix);
     }
+    // this.prefix = 'dev.';
+    // console.log(
+    //   'this.configService.get<string>("TOOLJET_HOST").endsWith("/"): ' +
+    //     this.configService.get<string>('TOOLJET_HOST').endsWith('/') +
+    //     ' - ' +
+    //     this.configService.get<string>('TOOLJET_HOST') +
+    //     this.suffix +
+    //     'login/oauth/authorize'
+    // );
+    this.redirectUrl = this.configService.get<string>('TOOLJET_HOST') + this.suffix + 'login/oauth/authorize';
+    this.tokenUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/oauth2/token';
+    this.getUserUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/api/me';
   }
-
-  private readonly authUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/oauth2/authorize';
-  private readonly tokenUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/oauth2/token';
-  private readonly getUserUrl = 'https://' + this.prefix + 'auth.cloudintegration.eu/api/me';
-  private readonly serverUrl = this.configService.get<string>('TOOLJET_HOST') + this.suffix;
-
 
   // AuthResponse will need to be changed!
-  async #getUserDetails({ access_token }: AuthResponse): Promise<UserResponse> {
+  async #getUserDetails(access_token: string): Promise<UserResponse> {
     const response: any = await got(this.getUserUrl, {
       method: 'get',
-      headers: { Accept: 'application/x-www-form-urlencoded', Authorization: `Bearer ${access_token}` },
-    }).json();
-
-    const email = response.data.username;
-    const firstName = response.data.first_name;
-    const lastName = response.data.last_name;
-
-    return { userSSOId: access_token, firstName, lastName, email, sso: 'polydocs' };
-  }
-
-  async signIn(code: string, configs: any): Promise<any> {
-    /* auth code -> new endpoint
-
-    I want to open up the login page and login the user -> by chance pass the email + password to the login automatically.
-
-    after login i need the token 
-    scope -> profile
-
-
-
-
-    signIn -> login on auth -> token -> getUserDetails -> setup user
-
-    1. get call grant_type: authorization_code, client_id, redirect_uri -> insight uri
-    2. get code -> send request to token
-    */
-    // const formData = new FormData();
-    const token = 'Basic ' + new Buffer(configs.clientId + ':' + configs.clientSecret, 'base64').toString();
-
-    const url =
-      this.authUrl +
-      '?client_id=' +
-      configs.clientId +
-      '&scope=profile' +
-      '&redirect_uri=' +
-      this.serverUrl +
-      'login/oauth/authorize' +
-      '&response_type=code';
-
-    console.log('token for auth: ' + token);
-    console.log('url for auth: ' + url);
-
-    const response: any = await got(url, {
-      method: 'get',
       headers: {
-        Accept: 'application/json',
-        Authorization: token,
+        Authorization: `Bearer ${access_token}`,
       },
     }).json();
 
-    return await this.#getUserDetails(response);
-  }
-}
+    // console.log('response of url:' + this.getUserUrl + ' , res: ' + JSON.stringify(response));
 
-interface AuthResponse {
-  access_token: string;
-  scope?: string;
-  token_type?: string;
+    const email = response.username;
+    const firstName = response.first_name;
+    const lastName = response.last_name;
+
+    // console.log('email: ' + email + ' firstName: ' + firstName + ' lastName: ' + lastName);
+
+    return {
+      userSSOId: access_token,
+      firstName,
+      lastName,
+      email,
+      sso: 'polydocs',
+    };
+  }
+
+  async signIn(code: string, configs: any): Promise<any> {
+    // console.log('enter signIn function');
+    const token = 'Basic ' + Buffer.from(configs.clientId + ':' + configs.clientSecret).toString('base64');
+
+    // console.log('--------------------------------');
+    // console.log('redirectUrl: ' + this.redirectUrl + ' requestUrl: ' + this.tokenUrl);
+
+    const response: any = await got
+      .post(this.tokenUrl, {
+        form: {
+          grant_type: 'authorization_code',
+          client_id: configs.clientId,
+          code: code,
+          redirect_uri: this.redirectUrl,
+        },
+        headers: {
+          Accept: 'application/json',
+          Authorization: token,
+        },
+      })
+      .json();
+
+    // console.log('----------------------------------------------------');
+    // console.log('response access_token: ' + JSON.stringify(response));
+
+    return await this.#getUserDetails(response['access_token']);
+  }
 }
