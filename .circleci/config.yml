@@ -132,8 +132,7 @@ jobs:
       - run: |
 
           kubectl patch deployment << parameters.deployment >> -n << parameters.namespace >> \
-            --patch '{"spec":{"template":{"spec":{"containers":[{"name":"<< parameters.deployment >>", "image": \
-            "<< parameters.container >>:<< pipeline.parameters.GHA_Meta >>"}]}}}}'
+            --patch '{"spec":{"template":{"spec":{"containers":[{"name":"<< parameters.deployment >>", "image": "<< parameters.container >>:<< pipeline.parameters.GHA_Meta >>"}]}}}}'
 
           kubectl rollout restart deployment << parameters.deployment >> -n << parameters.namespace >>
 
