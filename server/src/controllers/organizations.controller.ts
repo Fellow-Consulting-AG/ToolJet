@@ -60,6 +60,7 @@ export class OrganizationsController {
 
   @Get(['/:organizationId/public-configs', '/public-configs'])
   async getOrganizationDetails(@Param('organizationId') organizationId: string) {
+    console.log('public-configs - organizationId: ', organizationId);
     if (!organizationId && this.configService.get<string>('DISABLE_MULTI_WORKSPACE') === 'true') {
       // Request from single organization login page - find one from organization and setting
       organizationId = (await this.organizationsService.getSingleOrganization())?.id;
@@ -67,8 +68,13 @@ export class OrganizationsController {
     if (!organizationId) {
       throw new NotFoundException();
     }
-
+    console.log('--------------------------------\n got organizationId: ', organizationId);
     const result = await this.organizationsService.fetchOrganisationDetails(organizationId, [true], true);
+    console.log(
+      'public-configs - result: ',
+      result,
+      '\n\ndecamelizeKeys: ' + JSON.stringify(decamelizeKeys({ ssoConfigs: result }))
+    );
     return decamelizeKeys({ ssoConfigs: result });
   }
 

@@ -205,9 +205,9 @@ export class OrganizationsService {
       return;
     }
 
-    for (const sso of result?.ssoConfigs) {
-      await this.decryptSecret(sso?.configs);
-    }
+    // for (const sso of result?.ssoConfigs) {
+    //   await this.decryptSecret(sso?.configs);
+    // }
 
     if (!isHideSensitiveData) {
       return result;
@@ -257,16 +257,16 @@ export class OrganizationsService {
   }
 
   private async decryptSecret(configs) {
-    if (!configs || typeof configs !== 'object') return configs;
-    await Promise.all(
-      Object.keys(configs).map(async (key) => {
-        if (key.toLowerCase().includes('secret')) {
-          if (configs[key]) {
-            configs[key] = await this.encryptionService.decryptColumnValue('ssoConfigs', key, configs[key]);
-          }
-        }
-      })
-    );
+    // if (!configs || typeof configs !== 'object') return configs;
+    // await Promise.all(
+    //   Object.keys(configs).map(async (key) => {
+    //     if (key.toLowerCase().includes('secret')) {
+    //       if (configs[key]) {
+    //         configs[key] = await this.encryptionService.decryptColumnValue('ssoConfigs', key, configs[key]);
+    //       }
+    //     }
+    //   })
+    // );
   }
 
   async updateOrganization(organizationId: string, params) {

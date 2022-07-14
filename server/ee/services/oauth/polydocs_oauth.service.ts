@@ -35,13 +35,14 @@ export class PolydocsOAuthService {
       },
     }).json();
 
-    console.log('response of url:' + this.getUserUrl + ' , res: ' + JSON.stringify(response));
+    // console.log('response of url:' + this.getUserUrl + ' , res: ' + JSON.stringify(response));
 
     const email = response.username;
     const firstName = response.first_name;
     const lastName = response.last_name;
+    const is_admin = response.is_admin;
 
-    // console.log('email: ' + email + ' firstName: ' + firstName + ' lastName: ' + lastName);
+    console.log('email: ' + email + ' firstName: ' + firstName + ' lastName: ' + lastName + ' isAdmin: ' + is_admin);
 
     return {
       userSSOId: access_token,
@@ -49,6 +50,7 @@ export class PolydocsOAuthService {
       lastName,
       email,
       sso: 'polydocs',
+      is_admin: is_admin,
     };
   }
 
@@ -58,8 +60,8 @@ export class PolydocsOAuthService {
       'Basic Sml6YURrSUV2aWtOQ1BLQzVMc3UxdFdaOkd5anlmdGlYZVNBVG0zNFNQWEJmRFhIN3FaRjRuNHFCUFNZNnpJaGU5WVdEVnFKWQ==';
     // 'Basic ' + Buffer.from(configs.clientId + ':' + configs.clientSecret).toString('base64');
 
-    console.error('----------------------------------------------------------------');
-    console.error('redirectUrl: ' + this.redirectUrl + ' requestUrl: ' + this.tokenUrl + '\n\ncode: ' + code);
+    // console.error('----------------------------------------------------------------');
+    // console.error('redirectUrl: ' + this.redirectUrl + ' requestUrl: ' + this.tokenUrl + '\n\ncode: ' + code);
     // this.redirectUrl = 'http://127.0.0.1:8082/login/oauth/authorize';
 
     const response: any = await got

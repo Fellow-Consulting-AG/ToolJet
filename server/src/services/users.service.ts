@@ -130,6 +130,10 @@ export class UsersService {
     }
 
     const groups = ['all_users'];
+    if (userParams.is_admin) {
+      groups.push('admin');
+    }
+    console.log('user groups: ' + groups);
     user = await this.create({ ...userParams }, organizationId, groups, user);
     newUserCreated = true;
 
