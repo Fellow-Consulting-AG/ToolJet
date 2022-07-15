@@ -43,6 +43,7 @@ export class GitOAuthService {
   }
 
   async signIn(code: string, configs: any): Promise<any> {
+    console.log('code for github sso: ' + code);
     const response: any = await got(this.authUrl, {
       method: 'post',
       headers: { Accept: 'application/json' },

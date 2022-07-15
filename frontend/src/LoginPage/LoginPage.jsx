@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import queryString from 'query-string';
 import GoogleSSOLoginButton from '@ee/components/LoginPage/GoogleSSOLoginButton';
 import GitSSOLoginButton from '@ee/components/LoginPage/GitSSOLoginButton';
+import PolydocsSSOLoginButton from '@ee/components/LoginPage/PolydocsSSOLoginButton';
 import { validateEmail } from '../_helpers/utils';
 
 class LoginPage extends React.Component {
@@ -45,6 +46,14 @@ class LoginPage extends React.Component {
               form: {
                 enable_sign_up: true,
                 enabled: true,
+                // sso_configs: {
+                //   enabled: true,
+                //   sso: 'polydocs',
+                //   configs: {
+                //     clientId: 'JizaDkIEvikNCPKC5Lsu1tWZ',
+                //     clientSecret: 'GyjyftiXeSATm34SPXBfDXH7qZF4n4qBPSY6zIhe9YWDVqJY',
+                //   },
+                // },
               },
             },
           });
@@ -231,6 +240,9 @@ class LoginPage extends React.Component {
                     />
                   )}
                   {this.state.configs?.git?.enabled && <GitSSOLoginButton configs={this.state.configs?.git?.configs} />}
+                  {this.state.configs?.polydocs?.enabled && (
+                    <PolydocsSSOLoginButton configId={this.state.configs?.polydocs?.config_id} />
+                  )}
                 </div>
               </div>
             )}
