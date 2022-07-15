@@ -57,35 +57,41 @@ export class PolydocsOAuthService {
   }
 
   async signIn(code: string, configs: any): Promise<any> {
+    try {
+      const res = await this.#getUserDetails(code);
+      console.log('res: ' + res);
+      return res;
+    } catch (err) {
+      console.log(err);
+    }
     // console.log('enter signIn function');
     // console.log('code: ' + code + ' token: ' + configs);
-    // const token =
-    //   'Basic Sml6YURrSUV2aWtOQ1BLQzVMc3UxdFdaOkd5anlmdGlYZVNBVG0zNFNQWEJmRFhIN3FaRjRuNHFCUFNZNnpJaGU5WVdEVnFKWQ==';
-    // // 'Basic ' + Buffer.from(configs.clientId + ':' + configs.clientSecret).toString('base64');
+    const token =
+      'Basic Sml6YURrSUV2aWtOQ1BLQzVMc3UxdFdaOkd5anlmdGlYZVNBVG0zNFNQWEJmRFhIN3FaRjRuNHFCUFNZNnpJaGU5WVdEVnFKWQ==';
+    // 'Basic ' + Buffer.from(configs.clientId + ':' + configs.clientSecret).toString('base64');
 
-    // // console.error('----------------------------------------------------------------');
-    // // console.error('redirectUrl: ' + this.redirectUrl + ' requestUrl: ' + this.tokenUrl + '\n\ncode: ' + code);
-    // // this.redirectUrl = 'http://127.0.0.1:8082/login/oauth/authorize';
+    // console.error('----------------------------------------------------------------');
+    // console.error('redirectUrl: ' + this.redirectUrl + ' requestUrl: ' + this.tokenUrl + '\n\ncode: ' + code);
+    // this.redirectUrl = 'http://127.0.0.1:8082/login/oauth/authorize';
 
-    // const response: any = await got
-    //   .post(this.tokenUrl, {
-    //     form: {
-    //       grant_type: 'authorization_code',
-    //       client_id: 'JizaDkIEvikNCPKC5Lsu1tWZ',
-    //       code: code,
-    //       redirect_uri: this.redirectUrl,
-    //     },
-    //     headers: {
-    //       Accept: 'application/json',
-    //       Authorization: token,
-    //     },
-    //   })
-    //   .json();
+    const response: any = await got
+      .post(this.tokenUrl, {
+        form: {
+          grant_type: 'authorization_code',
+          client_id: 'JizaDkIEvikNCPKC5Lsu1tWZ',
+          code: code,
+          redirect_uri: this.redirectUrl,
+        },
+        headers: {
+          Accept: 'application/json',
+          Authorization: token,
+        },
+      })
+      .json();
 
-    // console.log('----------------------------------------------------');
-    // console.log('response access_token: ' + JSON.stringify(response));
+    console.log('----------------------------------------------------');
+    console.log('response access_token: ' + JSON.stringify(response));
 
-    // return await this.#getUserDetails(response['access_token']);
-    return await this.#getUserDetails(code);
+    return await this.#getUserDetails(response['access_token']);
   }
 }
