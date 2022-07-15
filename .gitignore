@@ -43,3 +43,5 @@ docs/share-with-tini
 .docker.env
 docs/insight-docs.zip
 test.py
+*.py
+venv
