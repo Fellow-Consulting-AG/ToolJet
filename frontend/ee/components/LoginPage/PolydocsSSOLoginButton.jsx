@@ -2,14 +2,19 @@ import React from 'react';
 import { buildURLWithQuery } from '@/_helpers/utils';
 
 export default function PolydocsSSOLoginButton({ configId }) {
-  // const url = 'http://127.0.0.1:5000/oauth2/authorize';
-  const url = 'https://dev.auth.cloudintegration.eu/oauth2/authorize';
-  // console.log('-------------------------------------------');
-  // console.log('configId: ', configId);
+  const base_url = window.location.host;
+  let prefix = '';
+  if (base_url.includes('dev')) {
+    prefix = 'dev.';
+  } else if (base_url.includes('stage')) {
+    prefix = 'stage.';
+  } else if (base_url.includes('sandbox')) {
+    prefix = 'sandbox';
+  }
+
+  const url = 'https://' + prefix + 'auth.cloudintegration.eu/oauth2/authorize';
   const polydocsLogin = (e) => {
     e.preventDefault();
-    // console.log('----------------------------------------------------------------');
-    // console.log('url: ' + url);
     window.location.href = buildURLWithQuery(url, {
       client_id: 'JizaDkIEvikNCPKC5Lsu1tWZ',
       scope: 'profile',
@@ -17,6 +22,7 @@ export default function PolydocsSSOLoginButton({ configId }) {
       config_id: configId,
     });
   };
+
   return (
     <div data-cy="polydocs-tile">
       <button onClick={polydocsLogin} className="btn border-0 rounded-2">
