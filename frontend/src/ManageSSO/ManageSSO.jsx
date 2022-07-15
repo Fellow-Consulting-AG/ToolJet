@@ -15,7 +15,7 @@ export function ManageSSO({ switchDarkMode, darkMode }) {
     // { id: 'google', label: 'Google' },
     // { id: 'git', label: 'GitHub' },
     { id: 'polydocs', label: 'Polydocs' },
-    { id: 'form', label: 'Password Login' },
+    // { id: 'form', label: 'Password Login' },
   ];
   const changePage = useCallback(
     (page) => {

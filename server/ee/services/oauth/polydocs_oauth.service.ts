@@ -40,10 +40,7 @@ export class PolydocsOAuthService {
     const email = response.username;
     const firstName = response.first_name;
     const lastName = response.last_name;
-    let is_admin = false;
-    if (response.is_admin || response.is_organisation_admin) {
-      is_admin = true;
-    }
+    const is_admin = response.is_admin || response.is_organisation_admin ? true : false;
 
     console.log('email: ' + email + ' firstName: ' + firstName + ' lastName: ' + lastName + ' isAdmin: ' + is_admin);
 
