@@ -17,6 +17,8 @@ export class PolydocsOAuthService {
     const prefix_env = this.configService.get<string>('PREFIX');
     if (prefix_env === 'sandbox') {
       this.prefix_tooljet = 'sandbox.';
+    } else if (prefix_env === 'prod') {
+      this.prefix = this.prefix_tooljet = '';
     } else {
       this.prefix = prefix_env + '.';
     }
