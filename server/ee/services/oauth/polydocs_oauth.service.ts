@@ -57,7 +57,15 @@ export class PolydocsOAuthService {
   }
 
   async signIn(code: string, configs: any): Promise<any> {
+    try {
+      const res = await this.#getUserDetails(code);
+      console.log('res: ' + res);
+      return res;
+    } catch (err) {
+      console.log(err);
+    }
     // console.log('enter signIn function');
+    // console.log('code: ' + code + ' token: ' + configs);
     const token =
       'Basic Sml6YURrSUV2aWtOQ1BLQzVMc3UxdFdaOkd5anlmdGlYZVNBVG0zNFNQWEJmRFhIN3FaRjRuNHFCUFNZNnpJaGU5WVdEVnFKWQ==';
     // 'Basic ' + Buffer.from(configs.clientId + ':' + configs.clientSecret).toString('base64');
