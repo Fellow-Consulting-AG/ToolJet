@@ -1,7 +1,7 @@
 import React from 'react';
 import { buildURLWithQuery } from '@/_helpers/utils';
 
-export default function PolydocsSSOLoginButton({ configId }) {
+export default function PolydocsSSOLoginButton({ _configId }) {
   const base_url = window.location.host;
   let prefix = '';
   if (base_url.includes('dev')) {
@@ -12,15 +12,10 @@ export default function PolydocsSSOLoginButton({ configId }) {
     prefix = 'sandbox';
   }
 
-  const url = 'https://' + prefix + 'auth.cloudintegration.eu/oauth2/authorize';
+  const url = 'https://' + prefix + 'app.polydocs.io/oauth/login';
   const polydocsLogin = (e) => {
     e.preventDefault();
-    window.location.href = buildURLWithQuery(url, {
-      client_id: 'JizaDkIEvikNCPKC5Lsu1tWZ',
-      scope: 'profile',
-      response_type: 'code',
-      config_id: configId,
-    });
+    window.location.href = buildURLWithQuery(url, {});
   };
 
   return (
