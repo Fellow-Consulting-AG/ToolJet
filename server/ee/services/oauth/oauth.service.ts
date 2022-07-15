@@ -49,14 +49,18 @@ export class OauthService {
     return true;
   }
 
-  async #findOrCreateUser({ firstName, lastName, email }: UserResponse, organization: Organization): Promise<User> {
+  async #findOrCreateUser(
+    { firstName, lastName, email, is_admin }: UserResponse,
+    organization: Organization
+  ): Promise<User> {
     const existingUser = await this.usersService.findByEmail(email, organization.id, ['active', 'invited']);
     const organizationUser = existingUser?.organizationUsers?.[0];
 
     if (!organizationUser) {
       // User not exist in the workspace
+      // check if user is admin -> add to admin group
       const { user, newUserCreated } = await this.usersService.findOrCreateByEmail(
-        { firstName, lastName, email },
+        { firstName, lastName, email, is_admin },
         organization.id
       );
 
@@ -106,6 +110,7 @@ export class OauthService {
   async signIn(ssoResponse: SSOResponse, configId: string): Promise<any> {
     const ssoConfigs: SSOConfigs = await this.organizationService.getConfigs(configId);
 
+    console.log('ssoConfigs: ', JSON.stringify(ssoConfigs), 'ssoResponse: ', JSON.stringify(ssoResponse));
     if (!(ssoConfigs && ssoConfigs?.organization)) {
       throw new UnauthorizedException();
     }
@@ -120,14 +125,12 @@ export class OauthService {
       case 'google':
         userResponse = await this.googleOAuthService.signIn(token, configs);
         break;
-
       case 'git':
         userResponse = await this.gitOAuthService.signIn(token, configs);
         break;
       case 'polydocs':
         userResponse = await this.polydocsOAuthService.signIn(token, configs);
         break;
-
       default:
         break;
     }
@@ -143,6 +146,8 @@ export class OauthService {
     if (!userResponse.firstName) {
       userResponse.firstName = userResponse.email?.split('@')?.[0];
     }
+    console.log('--------------------------------');
+    console.log('userResponse: ' + JSON.stringify(userResponse));
     const user: User = await (!enableSignUp
       ? this.#findAndActivateUser(userResponse.email, organization.id)
       : this.#findOrCreateUser(userResponse, organization));

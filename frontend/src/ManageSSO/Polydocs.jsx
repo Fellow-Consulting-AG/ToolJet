@@ -16,22 +16,30 @@ export function Polydocs({ settings, updateData }) {
 
   const saveSettings = () => {
     setSaving(true);
-    organizationService.editOrganizationConfigs({ type: 'polydocs', configs: { clientId, clientSecret } }).then(
-      (data) => {
-        setSaving(false);
-        data.id && setConfigId(data.id);
-        updateData('polydocs', { id: data.id, configs: { client_id: clientId, client_secret: clientSecret } });
-        toast.success('updated SSO configurations', {
-          position: 'top-center',
-        });
-      },
-      () => {
-        setSaving(false);
-        toast.error('Error saving sso configurations', {
-          position: 'top-center',
-        });
-      }
-    );
+    organizationService
+      .editOrganizationConfigs({
+        type: 'polydocs',
+        configs: { clientId, clientSecret },
+      })
+      .then(
+        (data) => {
+          setSaving(false);
+          data.id && setConfigId(data.id);
+          updateData('polydocs', {
+            id: data.id,
+            configs: { client_id: clientId, client_secret: clientSecret },
+          });
+          toast.success('updated SSO configurations', {
+            position: 'top-center',
+          });
+        },
+        () => {
+          setSaving(false);
+          toast.error('Error saving sso configurations', {
+            position: 'top-center',
+          });
+        }
+      );
   };
 
   const changeStatus = () => {
@@ -58,7 +66,7 @@ export function Polydocs({ settings, updateData }) {
 
   return (
     <div className="card">
-      <div className="card-header">
+      {/* <div className="card-header">
         <div className="d-flex justify-content-between title-with-toggle">
           <div className="card-title" data-cy="card-title">
             Polydocs
@@ -114,16 +122,16 @@ export function Polydocs({ settings, updateData }) {
                 data-cy="client-secret-input"
               />
             </div>
-          </div>
-          {configId && (
-            <div className="form-group mb-3">
-              <label className="form-label" data-cy="redirect-url-label">
-                Redirect URL
-              </label>
-              <div data-cy="redirect-url">{`${window.location.protocol}//${window.location.host}/sso/polydocs/${configId}`}</div>
-            </div>
-          )}
-          <div className="form-footer">
+          </div> */}
+      {configId && (
+        <div className="form-group mb-3">
+          <label className="form-label" data-cy="redirect-url-label">
+            Redirect URL
+          </label>
+          <div data-cy="redirect-url">{`${window.location.protocol}//${window.location.host}/sso/polydocs/${configId}`}</div>
+        </div>
+      )}
+      {/* <div className="form-footer">
             <button type="button" className="btn btn-light mr-2" onClick={reset} data-cy="cancel-button">
               Cancel
             </button>
@@ -134,11 +142,9 @@ export function Polydocs({ settings, updateData }) {
               onClick={saveSettings}
               data-cy="save-button"
             >
-              Save
+          Save
             </button>
-          </div>
-        </form>
-      </div>
+          </div> */}
     </div>
   );
 }

@@ -4,4 +4,5 @@ export default interface UserResponse {
   lastName?: string;
   email: string;
   sso: string;
+  is_admin?: boolean;
 }

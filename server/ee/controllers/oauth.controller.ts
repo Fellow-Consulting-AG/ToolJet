@@ -7,6 +7,7 @@ export class OauthController {
 
   @Post('sign-in/:configId')
   async create(@Param('configId') configId, @Body() body) {
+    console.log('sign-in configId: ', configId, '\nsign-in body: ', body);
     const result = await this.oauthService.signIn(body, configId);
     return result;
   }
