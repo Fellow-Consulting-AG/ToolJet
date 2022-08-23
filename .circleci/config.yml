@@ -147,6 +147,30 @@ workflows:
         - or:
           - equal: ["dev", << pipeline.git.branch >>]
           - equal: ["stage", << pipeline.git.branch >>]
+        - equal: ["CircleCI", << pipeline.parameters.GHA_Action >>]
+    jobs:
+      # Build and push Docker image to Digitalocean Registry
+      - build-and-push:
+          context:
+            - Digitalocean
+            - GitHub
+          tag: << pipeline.parameters.GHA_Meta >>
+          image: cloudintegration/tooljet
+
+      - deploy:
+          branch: << pipeline.git.branch >>
+          namespace: << pipeline.git.branch >>
+          deployment: insight
+          tag: << pipeline.parameters.GHA_Meta >>
+          container: registry.digitalocean.com/cloudintegration/tooljet
+          cluster-name: polydocs
+          requires:
+            - build-and-push
+            
+  deployment_workflow_cloud:
+    when:
+      and:
+        - or:
           - equal: ["sandbox", << pipeline.git.branch >>]
           - equal: ["prod", << pipeline.git.branch >>]
         - equal: ["CircleCI", << pipeline.parameters.GHA_Action >>]
