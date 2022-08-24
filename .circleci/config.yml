@@ -91,7 +91,7 @@ jobs:
   deploy:
     executor:
       name: gcp-gcr/default
-    # resource_class: small
+    resource_class: small
     parameters:
       branch:
         description: |
@@ -130,7 +130,6 @@ jobs:
 
       # kubectl patch deployment deployment-name -n namespace --patch '{"spec":{"template":{"spec":{"containers":[{"name":"deployment-name", "image": "registry:tag"}]}}}}'
       - run: |
-
           kubectl patch deployment << parameters.deployment >> -n << parameters.namespace >> \
             --patch '{"spec":{"template":{"spec":{"containers":[{"name":"<< parameters.deployment >>", "image": "<< parameters.container >>:<< pipeline.parameters.GHA_Meta >>"}]}}}}'
 
@@ -145,8 +144,9 @@ workflows:
     when:
       and:
         - or:
-          - equal: ["dev", << pipeline.git.branch >>]
-          - equal: ["stage", << pipeline.git.branch >>]
+            - equal: ["dev", << pipeline.git.branch >>]
+            - equal: ["stage", << pipeline.git.branch >>]
+            - equal: ["sandbox", << pipeline.git.branch >>]
         - equal: ["CircleCI", << pipeline.parameters.GHA_Action >>]
     jobs:
       # Build and push Docker image to Digitalocean Registry
@@ -166,13 +166,10 @@ workflows:
           cluster-name: polydocs
           requires:
             - build-and-push
-            
   deployment_workflow_cloud:
     when:
       and:
-        - or:
-          - equal: ["sandbox", << pipeline.git.branch >>]
-          - equal: ["prod", << pipeline.git.branch >>]
+        - equal: ["prod", << pipeline.git.branch >>]
         - equal: ["CircleCI", << pipeline.parameters.GHA_Action >>]
     jobs:
       # Build and push Docker image to Digitalocean Registry
