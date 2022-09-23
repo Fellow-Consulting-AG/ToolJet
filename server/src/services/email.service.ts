@@ -76,7 +76,7 @@ export class EmailService {
           ${
             organizationInvitationToken && sender && organizationName
               ? `<span>
-              ${sender} has invited you to use Insight workspace: ${organizationName}.
+              ${sender} has invited you to use Insight²workspace: ${organizationName}.
             </span>`
               : ''
           }
@@ -88,7 +88,7 @@ export class EmailService {
           <br>
           <p>
             Welcome aboard,<br>
-            Insight Team
+            Insight²Team
           </p>
         </body>
       </html>
@@ -116,7 +116,7 @@ export class EmailService {
           <p>Hi ${name || ''},</p>
           <br>
           <span>
-          ${sender} has invited you to use Insight workspace: ${organizationName}. Use the link below to set up your account and get started.
+          ${sender} has invited you to use Insight²workspace: ${organizationName}. Use the link below to set up your account and get started.
           </span>
           <br>
           <a href="${inviteUrl}">${inviteUrl}</a>
@@ -124,7 +124,7 @@ export class EmailService {
           <br>
           <p>
             Welcome aboard,<br>
-            Insight Team
+            Insight²Team
           </p>
         </body>
       </html>
