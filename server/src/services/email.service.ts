@@ -61,7 +61,7 @@ export class EmailService {
     organizationName?: string,
     sender?: string
   ) {
-    const subject = 'Welcome to Insight';
+    const subject = 'Welcome to Insight²';
     const inviteUrl = `${this.TOOLJET_HOST}/invitations/${invitationtoken}${
       organizationInvitationToken ? `/workspaces/${organizationInvitationToken}` : ''
     }`;
@@ -104,7 +104,7 @@ export class EmailService {
     invitationtoken: string,
     organizationName: string
   ) {
-    const subject = 'Welcome to Insight';
+    const subject = 'Welcome to Insight²';
     const inviteUrl = `${this.TOOLJET_HOST}/organization-invitations/${invitationtoken}`;
     const html = `
       <!DOCTYPE html>
