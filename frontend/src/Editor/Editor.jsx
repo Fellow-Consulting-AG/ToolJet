@@ -241,7 +241,7 @@ class Editor extends React.Component {
   componentWillUnmount() {
     document.removeEventListener('mousemove', this.onMouseMove);
     document.removeEventListener('mouseup', this.onMouseUp);
-    document.title = 'Insight - Dashboard';
+    document.title = 'Insight² - Dashboard';
     this.socket && this.socket?.close();
     if (config.ENABLE_MULTIPLAYER_EDITING) this.props?.provider?.disconnect();
   }
