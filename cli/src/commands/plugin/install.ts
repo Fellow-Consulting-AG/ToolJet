@@ -21,7 +21,7 @@ export default class Install extends Command {
     if (!fs.existsSync(pluginPath)) {
       this.log(
         '\x1b[41m%s\x1b[0m',
-        'Error : Plugin not found, make sure that you are runing this command in Insight directory'
+        'Error : Plugin not found, make sure that you are runing this command in Insight²directory'
       );
       process.exit(1);
     }

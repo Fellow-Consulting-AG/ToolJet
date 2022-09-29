@@ -11,7 +11,12 @@ plugins_id=${data#"$prefix"}
 data=$(execute_command "cd $(pwd)/server && npm run start:dev")
 server_id=${data#"$prefix"}
 data=$(execute_command "cd $(pwd)/frontend && npm start")
+
+
+
 frontend_id=${data#"$prefix"}
+
+# exec
 
 # doesnt work sadly
 # echo "hit controll-c to close all windows"
