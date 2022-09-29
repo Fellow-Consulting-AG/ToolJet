@@ -61,7 +61,7 @@ export class EmailService {
     organizationName?: string,
     sender?: string
   ) {
-    const subject = 'Welcome to Insight';
+    const subject = 'Welcome to Insight²';
     const inviteUrl = `${this.TOOLJET_HOST}/invitations/${invitationtoken}${
       organizationInvitationToken ? `/workspaces/${organizationInvitationToken}` : ''
     }`;
@@ -76,7 +76,7 @@ export class EmailService {
           ${
             organizationInvitationToken && sender && organizationName
               ? `<span>
-              ${sender} has invited you to use Insight workspace: ${organizationName}.
+              ${sender} has invited you to use Insight²workspace: ${organizationName}.
             </span>`
               : ''
           }
@@ -88,7 +88,7 @@ export class EmailService {
           <br>
           <p>
             Welcome aboard,<br>
-            Insight Team
+            Insight²Team
           </p>
         </body>
       </html>
@@ -104,7 +104,7 @@ export class EmailService {
     invitationtoken: string,
     organizationName: string
   ) {
-    const subject = 'Welcome to Insight';
+    const subject = 'Welcome to Insight²';
     const inviteUrl = `${this.TOOLJET_HOST}/organization-invitations/${invitationtoken}`;
     const html = `
       <!DOCTYPE html>
@@ -116,7 +116,7 @@ export class EmailService {
           <p>Hi ${name || ''},</p>
           <br>
           <span>
-          ${sender} has invited you to use Insight workspace: ${organizationName}. Use the link below to set up your account and get started.
+          ${sender} has invited you to use Insight²workspace: ${organizationName}. Use the link below to set up your account and get started.
           </span>
           <br>
           <a href="${inviteUrl}">${inviteUrl}</a>
@@ -124,7 +124,7 @@ export class EmailService {
           <br>
           <p>
             Welcome aboard,<br>
-            Insight Team
+            Insight²Team
           </p>
         </body>
       </html>

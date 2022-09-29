@@ -31,7 +31,7 @@ export const BlankPage = function BlankPage({
                 style={{ color: darkMode && '#ffffff' }}
                 data-cy="empty-welcome-header"
               >
-                Welcome to Insight!
+                Welcome to Insight²!
               </h3>
               <p className={`empty-title ${darkMode && 'text-white-50'}`} data-cy="empty-description">
                 You can get started by creating a new application or by creating an application using a template in
