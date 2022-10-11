@@ -90,7 +90,7 @@ class App extends React.Component {
             {updateAvailable && (
               <div className="alert alert-info alert-dismissible" role="alert">
                 <h3 className="mb-1">Update available</h3>
-                <p>A new version of Insight has been released.</p>
+                <p>A new version of Insight² has been released.</p>
                 <div className="btn-list">
                   <a
                     href="https://docs.polydocs.io/docs/setup/updating"
