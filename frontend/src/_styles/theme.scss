@@ -1872,8 +1872,8 @@ button {
 }
 
 .btn-primary {
-  --tblr-btn-color: 77, 114, 250;
-  --tblr-btn-color-darker: 77, 94, 240;
+  --tblr-btn-color: 145, 15, 68;
+  --tblr-btn-color-darker: 61, 44, 134;
   border-color: none;
 }
 
@@ -3536,9 +3536,9 @@ input[type="text"] {
   color: #ffffff !important;
 }
 .empty-import-button {
-  color: #4d72fa !important ;
+  color: #910c44 !important ;
   background: #ffffff !important;
-  border: 1px solid #4d72fa !important;
+  border: 1px solid #910f44 !important;
   cursor: pointer;
   position: relative;
   &:hover {
