@@ -6,11 +6,11 @@ execute_command () {
 
 prefix="tab 1 of window id "
 
-data=$(execute_command "cd $(pwd)/plugins && npm start")
+data=$(execute_command "cd $(pwd)/plugins && npm install && npm start")
 plugins_id=${data#"$prefix"}
-data=$(execute_command "cd $(pwd)/server && npm run start:dev")
+data=$(execute_command "cd $(pwd)/server && npm install && npm run start:dev")
 server_id=${data#"$prefix"}
-data=$(execute_command "cd $(pwd)/frontend && npm start")
+data=$(execute_command "cd $(pwd)/frontend && npm install && npm start")
 
 
 

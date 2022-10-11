@@ -101,7 +101,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Insight Solutions, Inc.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Insight² Solutions, Inc.`,
     },
     algolia: {
       appId: 'O8HQRLI0WA',
