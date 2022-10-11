@@ -911,15 +911,15 @@ button {
 
       button.edit-button {
         background: #ffffff;
-        border: 1px solid #4d72fa;
+        border: 1px solid #3d2c44;
         box-sizing: border-box;
         border-radius: 4px;
-        color: #4d72fa;
+        color: #3d2c86;
       }
 
       button.launch-button {
-        background: #4d72fa;
-        border: 1px solid #4d72fa;
+        background: #3d2c86;
+        border: 1px solid #3d2c44;
         box-sizing: border-box;
         border-radius: 4px;
         color: #ffffff;
@@ -1208,8 +1208,8 @@ button {
         }
 
         button.launch-button {
-          background: #4d72fa;
-          border: 1px solid #4d72fa;
+          background: #3d2c86;
+          border: 1px solid #3d2c44;
           color: #ffffff;
         }
       }
@@ -1872,8 +1872,8 @@ button {
 }
 
 .btn-primary {
-  --tblr-btn-color: 145, 15, 68;
-  --tblr-btn-color-darker: 61, 44, 134;
+  --tblr-btn-color: 61, 44, 134;
+  --tblr-btn-color-darker: 145, 15, 68;
   border-color: none;
 }
 
@@ -3109,7 +3109,7 @@ input:focus-visible {
 
   .launch-btn {
     filter: brightness(0.4) !important;
-    background: #8d9095;
+    background: #3c2d44;
   }
 
   .badge {
@@ -4201,7 +4201,7 @@ input[type="text"] {
     display: contents;
   }
   .folder-create-btn {
-    color: #0565ff;
+    color: #3d2c86;
     cursor: pointer;
   }
 
@@ -4902,7 +4902,7 @@ div#driver-page-overlay {
     font-weight: bold;
   }
   .org-actions div {
-    color: #0565ff;
+    color: #3d2c86;
     cursor: pointer;
     font-size: 12px;
   }
@@ -4938,7 +4938,7 @@ div#driver-page-overlay {
   }
   .org-edit {
     span {
-      color: #0565ff;
+      color: #3d2c86;
       cursor: pointer;
       font-size: 10px;
     }
