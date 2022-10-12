@@ -40,7 +40,7 @@ const Slack = ({ optionchanged, createDataSource, options, isSaving, selectedDat
           <div className="mb-3">
             <div className="form-label">Authorize</div>
             <p>
-              Insight can connect to Slack and list users, send messages, etc. Please select appropriate permission
+              Insight² can connect to Slack and list users, send messages, etc. Please select appropriate permission
               scopes.
             </p>
             <div>
@@ -55,7 +55,7 @@ const Slack = ({ optionchanged, createDataSource, options, isSaving, selectedDat
                 <span className="form-check-label">
                   chat:write <br />
                   <small className="text-muted">
-                    Your Insight app will be able to list users and send messages to users & channels.
+                    Your Insight² app will be able to list users and send messages to users & channels.
                   </small>
                 </span>
               </label>

@@ -35,7 +35,7 @@ export const BlankPage = function BlankPage({
               </h3>
               <p className={`empty-title ${darkMode && 'text-white-50'}`} data-cy="empty-description">
                 You can get started by creating a new application or by creating an application using a template in
-                Insight Library.
+                Insight² Library.
               </p>
               <div className="empty-action">
                 <a

@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-// Insight runs migrations when the app boots up in containerized enviroments
+// Insight² runs migrations when the app boots up in containerized enviroments
 // Apart from db migrations we also do data manipulations using migrations which may not be idempotent
 // Therefore we need to introduce lock to handle concurrency issues
 // https://github.com/typeorm/typeorm/issues/3400

@@ -36,7 +36,7 @@ Cypress.Commands.add("appLogin",()=>{
 
 Cypress.Commands.add('createApp',(appName) => {
   cy.get('body').then(($title => {
-    if ($title.text().includes('You can get started by creating a new application or by creating an application using a template in Insight Library.')) {
+    if ($title.text().includes('You can get started by creating a new application or by creating an application using a template in Insight² Library.')) {
       cy.get(commonSelectors.emptyAppCreateButton).click();
       cy.get(commonSelectors.createButton).click();
       cy.wait(1000);
