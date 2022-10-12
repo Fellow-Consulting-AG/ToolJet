@@ -1,6 +1,6 @@
 export const emptyDashboardText={
   emptyPageHeader: "Welcome to Insight!",
-  emptyPageDescription: "You can get started by creating a new application or by creating an application using a template in Insight Library.",
+  emptyPageDescription: "You can get started by creating a new application or by creating an application using a template in Insight² Library.",
   createAppButton: "Create new application",
   importAppButton: "Import an application",
   chooseFromTemplate: "Choose from template",

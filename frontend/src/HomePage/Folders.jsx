@@ -154,7 +154,7 @@ export const Folders = function Folders({
         className={`list-group list-group-transparent mb-3 ${darkMode && 'dark'}`}
       >
         <a
-          className={`list-group-item list-group-item-action d-flex align-items-center all-apps-link ${
+          className={`list-group-item list-group-item-action d-flex align-items-center all-apps-link app-title ${
             !activeFolder.id ? 'active' : ''
           }`}
           onClick={() => handleFolderChange({})}

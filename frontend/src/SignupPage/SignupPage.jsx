@@ -64,7 +64,7 @@ class SignupPage extends React.Component {
           <form className="card card-md" action="." method="get" autoComplete="off">
             {!signupSuccess && (
               <div className="card-body">
-                <h2 className="card-title text-center mb-4">Create a Insight account</h2>
+                <h2 className="card-title text-center mb-4">Create a Insight² account</h2>
                 <div className="mb-3">
                   <label className="form-label">Email address</label>
                   <input

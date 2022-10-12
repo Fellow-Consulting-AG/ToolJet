@@ -54,7 +54,7 @@ class OnboardingModal extends React.Component {
         className={`${this.props.darkMode && 'dark'} onboarding-modal`}
       >
         <Modal.Header>
-          <Modal.Title className="text-center">Finish Insight installation</Modal.Title>
+          <Modal.Title className="text-center">Finish Insight² installation</Modal.Title>
           <br />
         </Modal.Header>
 
@@ -100,7 +100,7 @@ class OnboardingModal extends React.Component {
               <span className="input-group-text"></span>
             </div>
           </div>
-          <small>You will receive updates from the Insight team ( 1-2 emails every month, we do not spam )</small>
+          <small>You will receive updates from the Insight² team ( 1-2 emails every month, we do not spam )</small>
         </Modal.Body>
 
         <Modal.Footer>
